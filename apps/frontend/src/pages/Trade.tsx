@@ -12,7 +12,7 @@ import { useOpenOrdersStore } from "@/lib/openOrdersStore";
 import { backendToAppSymbol } from "@/lib/symbols";
 import { toDecimalNumber } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
-import { LogOut, History, TrendingUp, TrendingDown, Wifi, WifiOff, User, ChevronDown } from "lucide-react";
+import { LogOut, History, TrendingUp, Wifi, WifiOff, User, ChevronDown, Activity } from "lucide-react";
 import api from "@/lib/api";
 import { useAuthCheck } from "@/lib/useAuthCheck";
 import { useGuestSession } from "@/lib/useGuestSession";
@@ -93,40 +93,41 @@ export default function Trade() {
 
   if ((isAuthLoading || isGuestLoading) && !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#080c14] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-          <p className="text-gray-500 text-sm">Initializing trading session...</p>
+          <div className="w-10 h-10 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+          <p className="text-foreground-muted text-sm">Initializing trading session...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen bg-[#080c14] text-white font-sans flex flex-col overflow-hidden">
+    <div className="h-screen bg-background text-foreground font-sans flex flex-col overflow-hidden">
 
       {/* NAVBAR */}
-      <nav className="h-12 shrink-0 px-4 flex items-center justify-between bg-[#0d1117] border-b border-white/5 z-30">
+      <nav className="h-14 shrink-0 px-4 flex items-center justify-between bg-background-secondary border-b border-border z-30">
 
-        {/* LEFT — logo + symbol info */}
+        {/* LEFT - logo + symbol info */}
         <div className="flex items-center gap-5">
-          <div className="flex items-center gap-2.5 cursor-pointer"
+          <div 
+            className="flex items-center gap-2.5 cursor-pointer"
             onClick={() => navigate("/")}
           >
-            <div className="w-6 h-6 rounded-md bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-[10px] font-bold shrink-0">EX</div>
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-xs font-bold text-background shrink-0">EX</div>
             <span className="font-semibold text-sm tracking-tight hidden sm:block">Exness</span>
           </div>
 
-          <div className="hidden md:flex items-center gap-1.5 h-12">
-            <div className="h-full w-px bg-white/5" />
+          <div className="hidden md:flex items-center gap-1.5 h-14">
+            <div className="h-6 w-px bg-border" />
             <div className="flex items-center gap-3 px-4">
-              <span className="text-xs font-medium text-gray-300">{selectedSymbol}</span>
+              <span className="text-sm font-medium text-foreground">{selectedSymbol}</span>
               {q && (
                 <>
-                  <span className="text-sm font-bold font-mono">{getMidPrice(q).toFixed(q.decimal)}</span>
-                  <div className="flex items-center gap-1 text-xs text-emerald-400">
-                    <TrendingUp size={11} />
-                    Live
+                  <span className="text-lg font-bold font-mono text-foreground">{getMidPrice(q).toFixed(q.decimal)}</span>
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-success-bg">
+                    <Activity size={12} className="text-success" />
+                    <span className="text-xs font-medium text-success">Live</span>
                   </div>
                 </>
               )}
@@ -134,29 +135,29 @@ export default function Trade() {
           </div>
         </div>
 
-        {/* RIGHT — equity + ws status + user */}
+        {/* RIGHT - equity + ws status + user */}
         <div className="flex items-center gap-3">
 
           {/* WS indicator */}
-          <div className={`hidden sm:flex items-center gap-1.5 text-xs ${wsConnected ? "text-emerald-400" : "text-red-400"}`}>
+          <div className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium ${wsConnected ? "bg-success-bg text-success" : "bg-danger-bg text-danger"}`}>
             {wsConnected ? <Wifi size={12} /> : <WifiOff size={12} />}
-            <span className="hidden md:block">{wsConnected ? "Live" : "Offline"}</span>
+            <span className="hidden md:block">{wsConnected ? "Connected" : "Offline"}</span>
           </div>
 
           {/* Equity */}
-          <div className="flex items-center gap-3 px-3 py-1.5 rounded-lg bg-white/3 border border-white/5">
+          <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-surface border border-border">
             <div>
-              <p className="text-[10px] text-gray-500 uppercase tracking-wide leading-none mb-0.5">Equity</p>
-              <p className="text-sm font-semibold font-mono">
+              <p className="text-[10px] text-foreground-muted uppercase tracking-wide leading-none mb-1">Equity</p>
+              <p className="text-sm font-bold font-mono text-foreground">
                 {isBalanceLoading || !usdBalance ? (
-                  <span className="text-gray-600">Loading...</span>
+                  <span className="text-foreground-muted">Loading...</span>
                 ) : (
                   `$${equityNum.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                 )}
               </p>
             </div>
             {!isBalanceLoading && usdBalance && unrealizedPnl !== 0 && (
-              <div className={`text-xs font-mono font-medium ${pnlPositive ? "text-emerald-400" : "text-red-400"}`}>
+              <div className={`text-xs font-mono font-semibold px-2 py-1 rounded-md ${pnlPositive ? "bg-success-bg text-success" : "bg-danger-bg text-danger"}`}>
                 {pnlPositive ? "+" : ""}{unrealizedPnl.toFixed(2)}
               </div>
             )}
@@ -166,39 +167,39 @@ export default function Trade() {
           <div className="relative">
             <button
               onClick={() => setUserMenuOpen(!userMenuOpen)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg hover:bg-white/5 transition-colors text-gray-400 hover:text-white"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-surface transition-colors text-foreground-secondary hover:text-foreground border border-transparent hover:border-border"
             >
-              <User size={14} />
+              <User size={16} />
               <ChevronDown size={12} className={`transition-transform ${userMenuOpen ? "rotate-180" : ""}`} />
             </button>
 
             {userMenuOpen && (
-              <div className="absolute right-0 top-full mt-1.5 w-48 bg-[#0d1117] border border-white/8 rounded-xl shadow-2xl overflow-hidden z-50">
-                <div className="px-3 py-2.5 border-b border-white/5">
-                  <p className="text-xs text-gray-500">{isGuest ? "Guest Account" : "Authenticated"}</p>
-                  <p className="text-xs text-gray-300 mt-0.5 truncate">{userId?.slice(0, 24)}...</p>
+              <div className="absolute right-0 top-full mt-2 w-52 bg-surface border border-border rounded-xl shadow-2xl overflow-hidden z-50 animate-fade-in">
+                <div className="px-4 py-3 border-b border-border">
+                  <p className="text-xs text-foreground-muted">{isGuest ? "Guest Account" : "Authenticated"}</p>
+                  <p className="text-xs text-foreground mt-0.5 truncate font-mono">{userId?.slice(0, 20)}...</p>
                 </div>
                 {!isGuest && (
                   <button
                     onClick={() => { setUserMenuOpen(false); navigate("/past-orders"); }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-foreground-secondary hover:text-foreground hover:bg-surface-hover transition-colors"
                   >
-                    <History size={13} /> Trade History
+                    <History size={14} /> Trade History
                   </button>
                 )}
                 {isGuest ? (
                   <button
                     onClick={() => { setUserMenuOpen(false); navigate("/login"); }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-blue-400 hover:text-blue-300 hover:bg-blue-500/5 transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-primary hover:bg-primary/5 transition-colors"
                   >
-                    Sign up for full access →
+                    Sign up for full access
                   </button>
                 ) : (
                   <button
                     onClick={() => { setUserMenuOpen(false); handleLogout(); }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/5 transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-danger hover:bg-danger-bg transition-colors"
                   >
-                    <LogOut size={13} /> Sign Out
+                    <LogOut size={14} /> Sign Out
                   </button>
                 )}
               </div>
@@ -210,29 +211,29 @@ export default function Trade() {
       {/* MAIN LAYOUT */}
       <main className="flex flex-1 overflow-hidden">
 
-        {/* LEFT — instruments */}
-        <aside className="w-56 shrink-0 bg-[#0d1117] border-r border-white/5 hidden lg:flex flex-col">
-          <div className="px-3 py-2.5 border-b border-white/5">
-            <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest">Markets</p>
+        {/* LEFT - instruments */}
+        <aside className="w-60 shrink-0 bg-background-secondary border-r border-border hidden lg:flex flex-col">
+          <div className="px-4 py-3 border-b border-border">
+            <p className="text-xs font-medium text-foreground-muted uppercase tracking-widest">Markets</p>
           </div>
           <div className="flex-1 overflow-y-auto">
             <QuotesTable />
           </div>
         </aside>
 
-        {/* CENTER — chart + orders */}
+        {/* CENTER - chart + orders */}
         <section className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
           {/* Chart topbar */}
-          <div className="h-10 shrink-0 flex items-center justify-between px-4 bg-[#0d1117] border-b border-white/5">
+          <div className="h-12 shrink-0 flex items-center justify-between px-4 bg-background-secondary border-b border-border">
             <div className="flex items-center gap-4">
-              <span className="text-xs text-gray-500">{selectedSymbol}</span>
+              <span className="text-sm font-medium text-foreground">{selectedSymbol}</span>
               {q && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono font-semibold text-white">{getMidPrice(q).toFixed(q.decimal)}</span>
-                  <span className="text-[10px] text-gray-600">|</span>
-                  <span className="text-[10px] text-gray-500">Bid <span className="text-red-400 font-mono">{toDecimalNumber(q.bid_price, q.decimal).toFixed(q.decimal)}</span></span>
-                  <span className="text-[10px] text-gray-500">Ask <span className="text-emerald-400 font-mono">{toDecimalNumber(q.ask_price, q.decimal).toFixed(q.decimal)}</span></span>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-mono font-semibold text-foreground">{getMidPrice(q).toFixed(q.decimal)}</span>
+                  <div className="h-4 w-px bg-border" />
+                  <span className="text-xs text-foreground-muted">Bid <span className="text-danger font-mono font-medium">{toDecimalNumber(q.bid_price, q.decimal).toFixed(q.decimal)}</span></span>
+                  <span className="text-xs text-foreground-muted">Ask <span className="text-success font-mono font-medium">{toDecimalNumber(q.ask_price, q.decimal).toFixed(q.decimal)}</span></span>
                 </div>
               )}
             </div>
@@ -240,31 +241,31 @@ export default function Trade() {
           </div>
 
           {/* Chart */}
-          <div className="flex-1 bg-[#080c14] min-h-0">
+          <div className="flex-1 bg-background min-h-0">
             <CandlesChart symbol={selectedSymbol} decimal={q?.decimal} />
           </div>
 
           {/* Open positions */}
-          <div className="h-44 shrink-0 bg-[#0d1117] border-t border-white/5 overflow-hidden">
-            <div className="px-4 py-2 border-b border-white/5 flex items-center justify-between">
-              <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest">Open Positions</p>
-              <span className="text-[10px] text-gray-600">{openOrders.length} active</span>
+          <div className="h-48 shrink-0 bg-background-secondary border-t border-border overflow-hidden">
+            <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+              <p className="text-xs font-medium text-foreground-muted uppercase tracking-widest">Open Positions</p>
+              <span className="text-xs text-foreground-muted font-mono">{openOrders.length} active</span>
             </div>
-            <div className="overflow-auto h-[calc(100%-33px)]">
+            <div className="overflow-auto h-[calc(100%-45px)]">
               <OpenOrders />
             </div>
           </div>
         </section>
 
-        {/* RIGHT — trade form */}
-        <aside className="w-72 shrink-0 bg-[#0d1117] border-l border-white/5 hidden lg:flex flex-col">
-          <div className="px-4 py-2.5 border-b border-white/5 flex items-center justify-between">
-            <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest">New Order</p>
+        {/* RIGHT - trade form */}
+        <aside className="w-80 shrink-0 bg-background-secondary border-l border-border hidden lg:flex flex-col">
+          <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+            <p className="text-xs font-medium text-foreground-muted uppercase tracking-widest">New Order</p>
             {isGuest && (
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Demo</span>
+              <span className="text-[10px] px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 font-medium">Demo</span>
             )}
           </div>
-          <div className="flex-1 overflow-y-auto p-3">
+          <div className="flex-1 overflow-y-auto p-4">
             <TradeForm />
           </div>
         </aside>

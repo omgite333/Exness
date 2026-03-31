@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Zap, Shield, BarChart2, Clock, TrendingUp, TrendingDown, ChevronRight } from "lucide-react";
+import { ArrowRight, Zap, Shield, BarChart3, Clock, TrendingUp, TrendingDown, ChevronRight, Activity, Globe, Layers } from "lucide-react";
 import { FaGithub, FaXTwitter } from "react-icons/fa6";
 
 const TICKER_DATA = [
@@ -13,44 +13,32 @@ const TICKER_DATA = [
 ];
 
 const STATS = [
-  { label: "Daily Volume", value: "$2.4B+" },
-  { label: "Active Traders", value: "180K+" },
-  { label: "Avg Execution", value: "<1ms" },
-  { label: "Uptime", value: "99.98%" },
+  { label: "Daily Volume", value: "$2.4B+", icon: Activity },
+  { label: "Active Traders", value: "180K+", icon: Globe },
+  { label: "Avg Execution", value: "<1ms", icon: Zap },
+  { label: "Uptime", value: "99.98%", icon: Layers },
 ];
 
 const FEATURES = [
   {
     icon: Zap,
     title: "Sub-millisecond Execution",
-    desc: "In-memory matching engine processes orders in under 1ms. No queues, no delays — pure speed.",
-    color: "from-yellow-500/20 to-orange-500/5",
-    border: "hover:border-yellow-500/40",
-    iconColor: "text-yellow-400",
+    desc: "In-memory matching engine processes orders in under 1ms. No queues, no delays.",
   },
   {
     icon: Shield,
     title: "Non-Custodial Security",
-    desc: "Your funds stay in your wallet. JWT-based auth with zero personal data stored on our servers.",
-    color: "from-emerald-500/20 to-teal-500/5",
-    border: "hover:border-emerald-500/40",
-    iconColor: "text-emerald-400",
+    desc: "Your funds stay in your wallet. JWT-based auth with zero personal data stored.",
   },
   {
-    icon: BarChart2,
+    icon: BarChart3,
     title: "Professional Charts",
-    desc: "Lightweight Charts with live candles, multiple timeframes, and real-time price feeds via WebSocket.",
-    color: "from-blue-500/20 to-cyan-500/5",
-    border: "hover:border-blue-500/40",
-    iconColor: "text-blue-400",
+    desc: "Lightweight Charts with live candles, multiple timeframes, and real-time feeds.",
   },
   {
     icon: Clock,
     title: "24/7 Live Markets",
-    desc: "Perpetual futures on BTC, ETH, SOL — streaming live from Backpack Exchange with up to 100x leverage.",
-    color: "from-violet-500/20 to-purple-500/5",
-    border: "hover:border-violet-500/40",
-    iconColor: "text-violet-400",
+    desc: "Perpetual futures on BTC, ETH, SOL with up to 100x leverage.",
   },
 ];
 
@@ -65,32 +53,34 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="bg-[#080c14] text-white font-sans overflow-x-hidden">
+    <div className="bg-background text-foreground font-sans overflow-x-hidden min-h-screen">
 
       {/* NAVBAR */}
-      <nav className={`fixed w-full z-50 top-0 transition-all duration-300 ${scrolled ? "bg-[#080c14]/95 backdrop-blur-xl border-b border-white/8 shadow-2xl" : "bg-transparent"}`}>
-        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center h-16 ">
-          <div className="flex items-center gap-3 cursor-pointer"
-            onClick={() => navigate("/")}>
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-xs font-bold text-white">EX</div>
-            <span className="font-semibold text-white tracking-tight text-lg">Exness</span>
+      <nav className={`fixed w-full z-50 top-0 transition-all duration-300 ${scrolled ? "bg-background/95 backdrop-blur-xl border-b border-border" : "bg-transparent"}`}>
+        <div className="max-w-6xl mx-auto px-6 flex justify-between items-center h-16">
+          <div 
+            className="flex items-center gap-3 cursor-pointer"
+            onClick={() => navigate("/")}
+          >
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-xs font-bold text-background">EX</div>
+            <span className="font-semibold text-foreground tracking-tight text-lg">Exness</span>
           </div>
 
-          <div className="hidden md:flex items-center gap-8 text-sm text-gray-400">
-            <button onClick={() => navigate("/docs")} className="hover:text-white transition-colors duration-200">Architecture</button>
-            <button onClick={() => navigate("/trade")} className="hover:text-white transition-colors duration-200">Demo</button>
+          <div className="hidden md:flex items-center gap-8 text-sm text-foreground-secondary">
+            <button onClick={() => navigate("/docs")} className="hover:text-foreground transition-colors duration-200">Architecture</button>
+            <button onClick={() => navigate("/trade")} className="hover:text-foreground transition-colors duration-200">Demo</button>
           </div>
 
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate("/trade")}
-              className="hidden sm:flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-white/5"
+              className="hidden sm:flex items-center gap-1.5 text-sm text-foreground-secondary hover:text-foreground transition-colors px-4 py-2 rounded-lg hover:bg-surface"
             >
               Try Demo
             </button>
             <button
               onClick={() => navigate("/login")}
-              className="flex items-center gap-2 text-sm font-medium bg-white text-[#080c14] px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="flex items-center gap-2 text-sm font-medium bg-primary text-background px-5 py-2.5 rounded-lg hover:bg-primary-hover transition-colors"
             >
               Sign In <ArrowRight size={14} />
             </button>
@@ -99,13 +89,13 @@ export default function Landing() {
       </nav>
 
       {/* TICKER STRIP */}
-      <div className="fixed top-16 w-full z-40 bg-[#0d1117] border-b border-white/5 overflow-hidden">
-        <div className="flex animate-[marquee_20s_linear_infinite] whitespace-nowrap">
+      <div className="fixed top-16 w-full z-40 bg-background-secondary border-b border-border overflow-hidden">
+        <div className="flex animate-marquee whitespace-nowrap">
           {TICKER_DATA.map((t, i) => (
-            <div key={i} className="flex items-center gap-3 px-8 py-2 border-r border-white/5 shrink-0">
-              <span className="text-xs font-medium text-gray-300">{t.sym}</span>
-              <span className="text-xs font-mono text-white">{t.price}</span>
-              <span className={`text-xs font-medium flex items-center gap-0.5 ${t.up ? "text-emerald-400" : "text-red-400"}`}>
+            <div key={i} className="flex items-center gap-3 px-8 py-2.5 border-r border-border shrink-0">
+              <span className="text-xs font-medium text-foreground-secondary">{t.sym}</span>
+              <span className="text-xs font-mono text-foreground font-medium">{t.price}</span>
+              <span className={`text-xs font-medium flex items-center gap-0.5 ${t.up ? "text-success" : "text-danger"}`}>
                 {t.up ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
                 {t.change}
               </span>
@@ -115,74 +105,77 @@ export default function Landing() {
       </div>
 
       {/* HERO */}
-      <section className="pt-44 pb-28 max-w-7xl mx-auto px-6">
-        <div className="max-w-4xl">
+      <section className="pt-44 pb-24 max-w-6xl mx-auto px-6">
+        <div className="max-w-3xl">
 
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-            Live markets — BTC · ETH · SOL Perpetuals
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-8">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse-soft" />
+            Live markets - BTC / ETH / SOL Perpetuals
           </div>
 
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold leading-[1.05] tracking-tight mb-6">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] tracking-tight mb-6">
             Trade with{" "}
-            <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent">
-              precision
-            </span>
+            <span className="gradient-text">precision</span>
             <br />and speed.
           </h1>
 
-          <p className="text-gray-400 text-lg md:text-xl leading-relaxed max-w-2xl mb-10">
+          <p className="text-foreground-secondary text-lg md:text-xl leading-relaxed max-w-xl mb-10">
             A professional-grade perpetuals exchange. Sub-millisecond execution,
-            real-time WebSocket feeds, and up to 100× leverage on crypto's top assets.
+            real-time WebSocket feeds, and up to 100x leverage.
           </p>
 
           <div className="flex flex-wrap gap-4">
             <button
               onClick={() => navigate("/login")}
-              className="group flex items-center gap-2 bg-white text-[#080c14] px-7 py-3.5 rounded-xl font-semibold text-sm hover:bg-gray-100 transition-all shadow-lg"
+              className="group flex items-center gap-2 bg-primary text-background px-7 py-3.5 rounded-xl font-semibold text-sm hover:bg-primary-hover transition-all glow-primary"
             >
               Open Account
               <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
             </button>
             <button
               onClick={() => navigate("/trade")}
-              className="flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm font-medium border border-white/10 text-gray-300 hover:bg-white/5 hover:border-white/20 hover:text-white transition-all"
+              className="flex items-center gap-2 px-7 py-3.5 rounded-xl text-sm font-medium border border-border text-foreground-secondary hover:bg-surface hover:border-border-light hover:text-foreground transition-all"
             >
-              Try Demo — No signup needed
+              Try Demo - No signup needed
             </button>
           </div>
         </div>
 
         {/* STATS ROW */}
-        <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-px bg-white/5 rounded-2xl overflow-hidden border border-white/5">
+        <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-4">
           {STATS.map((s, i) => (
-            <div key={i} className="bg-[#0d1117] px-6 py-6">
-              <p className="text-2xl md:text-3xl font-bold text-white mb-1">{s.value}</p>
-              <p className="text-xs text-gray-500 uppercase tracking-wide">{s.label}</p>
+            <div key={i} className="card p-6 group hover:border-border-light transition-all">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <s.icon size={16} className="text-primary" />
+                </div>
+              </div>
+              <p className="text-2xl md:text-3xl font-bold text-foreground mb-1 font-mono">{s.value}</p>
+              <p className="text-xs text-foreground-muted uppercase tracking-wide">{s.label}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* FEATURES */}
-      <section className="py-24 border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="mb-16">
-            <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">Why Exness</p>
-            <h2 className="text-4xl md:text-5xl font-bold">Built for serious traders.</h2>
+      <section className="py-24 border-t border-border bg-background-secondary">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="mb-16 text-center">
+            <p className="text-xs text-primary uppercase tracking-widest mb-3 font-medium">Why Exness</p>
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground">Built for serious traders.</h2>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             {FEATURES.map((f, i) => (
               <div
                 key={i}
-                className={`group relative p-6 rounded-2xl bg-gradient-to-br ${f.color} border border-white/5 ${f.border} transition-all duration-300 cursor-default`}
+                className="card p-6 group hover:border-primary/30 transition-all duration-300"
               >
-                <div className={`w-10 h-10 rounded-xl bg-[#080c14]/60 flex items-center justify-center mb-5 ${f.iconColor}`}>
-                  <f.icon size={20} />
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-5">
+                  <f.icon size={22} className="text-primary" />
                 </div>
-                <h3 className="font-semibold text-white mb-2 text-sm">{f.title}</h3>
-                <p className="text-gray-400 text-xs leading-relaxed">{f.desc}</p>
+                <h3 className="font-semibold text-foreground mb-2 text-base">{f.title}</h3>
+                <p className="text-foreground-secondary text-sm leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -191,15 +184,15 @@ export default function Landing() {
 
       {/* CTA SECTION */}
       <section className="py-24">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-blue-600/20 via-[#0d1117] to-cyan-600/20 border border-white/8 p-12 md:p-16 text-center">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(59,130,246,0.15)_0%,_transparent_70%)]" />
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="relative rounded-2xl overflow-hidden bg-background-secondary border border-border p-12 md:p-16 text-center">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(245,158,11,0.08)_0%,_transparent_70%)]" />
             <div className="relative">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4">Start trading in 30 seconds.</h2>
-              <p className="text-gray-400 mb-8 max-w-lg mx-auto">No KYC, no paperwork. Enter your email, get a magic link, and you're live.</p>
+              <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">Start trading in 30 seconds.</h2>
+              <p className="text-foreground-secondary mb-8 max-w-md mx-auto">No KYC, no paperwork. Enter your email, get a magic link, and you&apos;re live.</p>
               <button
                 onClick={() => navigate("/login")}
-                className="inline-flex items-center gap-2 bg-white text-[#080c14] px-8 py-3.5 rounded-xl font-semibold hover:bg-gray-100 transition-all text-sm"
+                className="inline-flex items-center gap-2 bg-primary text-background px-8 py-3.5 rounded-xl font-semibold hover:bg-primary-hover transition-all text-sm glow-primary"
               >
                 Create Free Account <ChevronRight size={16} />
               </button>
@@ -209,28 +202,21 @@ export default function Landing() {
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-white/5 py-10">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+      <footer className="border-t border-border py-10 bg-background-secondary">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-6 h-6 rounded-md bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-[10px] font-bold">EX</div>
-            <span className="text-sm font-medium text-gray-300">Exness Trading</span>
+            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center text-[10px] font-bold text-background">EX</div>
+            <span className="text-sm font-medium text-foreground-secondary">Exness Trading</span>
           </div>
-          <p className="text-xs text-gray-600">© {new Date().getFullYear()} Exness. For demo purposes only.</p>
-          <div className="flex items-center gap-4 text-gray-500">
-            <button className="hover:text-white transition-colors"><FaGithub size={16} /></button>
-            <button className="hover:text-white transition-colors"><FaXTwitter size={16} /></button>
-            <button onClick={() => navigate("/docs")} className="text-xs hover:text-white transition-colors">Docs</button>
-            <button onClick={() => navigate("/trade")} className="text-xs hover:text-white transition-colors">Trade</button>
+          <p className="text-xs text-foreground-muted">&copy; {new Date().getFullYear()} Exness. For demo purposes only.</p>
+          <div className="flex items-center gap-4 text-foreground-muted">
+            <button className="hover:text-foreground transition-colors p-2 rounded-lg hover:bg-surface"><FaGithub size={16} /></button>
+            <button className="hover:text-foreground transition-colors p-2 rounded-lg hover:bg-surface"><FaXTwitter size={16} /></button>
+            <button onClick={() => navigate("/docs")} className="text-xs hover:text-foreground transition-colors px-3 py-2 rounded-lg hover:bg-surface">Docs</button>
+            <button onClick={() => navigate("/trade")} className="text-xs hover:text-foreground transition-colors px-3 py-2 rounded-lg hover:bg-surface">Trade</button>
           </div>
         </div>
       </footer>
-
-      <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-      `}</style>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { appToBackendSymbol } from "@/lib/symbols";
 import { useOpenOrdersStore, type OpenOrder } from "@/lib/openOrdersStore";
 import type { UsdBalance } from "@/lib/balance";
 import { toDecimalNumber } from "@/lib/utils";
-import { ArrowRight, AlertCircle } from "lucide-react";
+import { ArrowRight, AlertCircle, CheckCircle } from "lucide-react";
 
 interface TradeFormProps {
   defaultSide?: "long" | "short";
@@ -46,7 +46,7 @@ export default function TradeForm({ defaultSide, onClose }: TradeFormProps) {
         type,
         quantity: Number(quantity),
         leverage: Number(leverage),
-        slippage: Number(slippage),  // send raw % (e.g. 0.5), engine checks priceDiffInPercent > slippage
+        slippage: Number(slippage),
         openPrice,
         decimal,
       };
@@ -65,7 +65,6 @@ export default function TradeForm({ defaultSide, onClose }: TradeFormProps) {
       if (data?.usdBalance) {
         qc.setQueryData<UsdBalance>(["balance.usd"], data.usdBalance);
       } else {
-        // Engine didn't return updated balance — force a refetch so equity stays accurate
         qc.invalidateQueries({ queryKey: ["balance.usd"] });
       }
       onClose?.();
@@ -74,23 +73,26 @@ export default function TradeForm({ defaultSide, onClose }: TradeFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (validate()) {
         mutate();
     }
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+  const positionSize = Number(quantity) * (openPrice ? toDecimalNumber(openPrice, decimal) : 0);
+  const marginRequired = positionSize / Number(leverage || 1);
 
-      <div className="flex bg-text-main p-1 gap-1">
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+
+      {/* Long/Short Toggle */}
+      <div className="flex p-1 gap-1 bg-surface rounded-xl border border-border">
         <button
           type="button"
           onClick={() => setType("long")}
-          className={`flex-1 py-2 text-sm font-bold font-mono-retro uppercase tracking-wider transition-all ${
+          className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${
             type === "long"
-              ? "bg-chart-green text-background-dark shadow-sm"
-              : "bg-transparent text-background-light hover:bg-white/10"
+              ? "bg-success text-background shadow-sm"
+              : "bg-transparent text-foreground-secondary hover:text-foreground hover:bg-surface-hover"
           }`}
         >
           Long
@@ -98,109 +100,132 @@ export default function TradeForm({ defaultSide, onClose }: TradeFormProps) {
         <button
           type="button"
           onClick={() => setType("short")}
-          className={`flex-1 py-2 text-sm font-bold font-mono-retro uppercase tracking-wider transition-all ${
+          className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${
             type === "short"
-              ? "bg-chart-red text-background-light shadow-sm"
-              : "bg-transparent text-background-light hover:bg-white/10"
+              ? "bg-danger text-foreground shadow-sm"
+              : "bg-transparent text-foreground-secondary hover:text-foreground hover:bg-surface-hover"
           }`}
         >
           Short
         </button>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
 
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] uppercase font-bold text-text-main/60">Asset</span>
-            <div className="bg-white/50 border-2 border-text-main/20 px-2 py-2 text-sm font-mono-retro font-bold text-text-main">
-                {selectedSymbol}
-            </div>
+        {/* Asset */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-medium text-foreground-muted uppercase tracking-wide">Asset</label>
+          <div className="bg-surface border border-border px-4 py-3 rounded-xl text-sm font-semibold text-foreground">
+            {selectedSymbol}
+          </div>
+        </div>
+
+        {/* Quantity */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-medium text-foreground-muted uppercase tracking-wide">Quantity</label>
+          <input
+            type="number"
+            step="0.0001"
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+            className={`w-full px-4 py-3 text-sm font-mono rounded-xl ${errors.quantity ? "border-danger focus:border-danger" : ""}`}
+            placeholder="0.00"
+          />
+          {errors.quantity && (
+            <span className="text-xs text-danger font-medium flex items-center gap-1.5">
+              <AlertCircle className="w-3 h-3" /> {errors.quantity}
+            </span>
+          )}
+        </div>
+
+        {/* Leverage & Slippage */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-foreground-muted uppercase tracking-wide">Leverage</label>
+            <select
+              value={leverage}
+              onChange={(e) => setLeverage(e.target.value)}
+              className="w-full px-4 py-3 text-sm font-mono rounded-xl appearance-none cursor-pointer"
+            >
+              {[1, 2, 3, 5, 10, 15, 20, 25, 50, 75, 100].map((v) => (
+                <option key={v} value={v}>{v}x</option>
+              ))}
+            </select>
           </div>
 
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] uppercase font-bold text-text-main/60">Quantity</span>
-            <div className="relative">
-                <input
-                    type="number"
-                    step="0.0001"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                    className={`w-full bg-white border-2 px-2 py-2 text-sm font-mono-retro outline-none focus:bg-background-light transition-all ${errors.quantity ? 'border-chart-red' : 'border-text-main focus:shadow-brutal focus:shadow-text-main'}`}
-                    placeholder="0.00"
-                />
-            </div>
-            {errors.quantity && <span className="text-[10px] text-chart-red font-bold flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {errors.quantity}</span>}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-foreground-muted uppercase tracking-wide">Slippage</label>
+            <select
+              value={slippage}
+              onChange={(e) => setSlippage(e.target.value)}
+              className="w-full px-4 py-3 text-sm font-mono rounded-xl appearance-none cursor-pointer"
+            >
+              {[0.1, 0.2, 0.3, 0.5, 1.0, 2.0, 5.0].map((v) => (
+                <option key={v} value={v}>{v}%</option>
+              ))}
+            </select>
           </div>
-
-          <div className="grid grid-cols-2 gap-3">
-
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] uppercase font-bold text-text-main/60">Leverage (x)</span>
-                <select
-                    value={leverage}
-                    onChange={(e) => setLeverage(e.target.value)}
-                    className="w-full bg-white border-2 border-text-main px-2 py-2 text-sm font-mono-retro outline-none focus:bg-background-light transition-all appearance-none cursor-pointer"
-                >
-                  {[1, 2, 3, 5, 10, 15, 20, 25, 50, 75, 100].map((v) => (
-                    <option key={v} value={v}>{v}x</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] uppercase font-bold text-text-main/60">Slippage (%)</span>
-                <select
-                    value={slippage}
-                    onChange={(e) => setSlippage(e.target.value)}
-                    className="w-full bg-white border-2 border-text-main px-2 py-2 text-sm font-mono-retro outline-none focus:bg-background-light transition-all appearance-none cursor-pointer"
-                >
-                  {[0.1, 0.2, 0.3, 0.5, 1.0, 2.0, 5.0].map((v) => (
-                    <option key={v} value={v}>{v}%</option>
-                  ))}
-                </select>
-              </div>
-          </div>
+        </div>
       </div>
 
-      <div className="bg-white border-2 border-text-main/10 p-2 space-y-1.5">
-         <div className="flex justify-between items-baseline">
-            <span className="text-[10px] uppercase font-bold text-text-main/60">Est. Entry Price</span>
-            <span className="font-mono-retro font-bold text-sm">
-                {openPrice ? toDecimalNumber(openPrice, decimal) : "-"}
-            </span>
-         </div>
-          <div className="flex justify-between items-baseline">
-            <span className="text-[10px] uppercase font-bold text-text-main/60">Position Size</span>
-            <span className="font-mono-retro font-bold text-sm">
-                {(Number(quantity) * (openPrice ? toDecimalNumber(openPrice, decimal) : 0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
-            </span>
-         </div>
-         <div className="flex justify-between items-baseline border-t border-text-main/10 pt-2 mt-2">
-            <span className="text-[10px] uppercase font-bold text-text-main/60">Margin Required</span>
-            <span className="font-mono-retro font-bold text-sm text-primary">
-                {((Number(quantity) * (openPrice ? toDecimalNumber(openPrice, decimal) : 0)) / Number(leverage || 1)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
-            </span>
-         </div>
+      {/* Order Summary */}
+      <div className="bg-surface border border-border rounded-xl p-4 space-y-3">
+        <div className="flex justify-between items-center">
+          <span className="text-xs text-foreground-muted">Entry Price</span>
+          <span className="font-mono font-semibold text-sm text-foreground">
+            {openPrice ? toDecimalNumber(openPrice, decimal).toLocaleString() : "-"}
+          </span>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-xs text-foreground-muted">Position Size</span>
+          <span className="font-mono font-semibold text-sm text-foreground">
+            ${positionSize.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
+        </div>
+        <div className="flex justify-between items-center pt-3 border-t border-border">
+          <span className="text-xs text-foreground-muted">Margin Required</span>
+          <span className="font-mono font-bold text-sm text-primary">
+            ${marginRequired.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
+        </div>
       </div>
 
+      {/* Submit Button */}
       <button
         type="submit"
         disabled={isPending}
-        className="w-full bg-text-main text-background-light py-3 font-bold font-mono-retro text-sm shadow-brutal hover:shadow-brutal-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-2 !border-2 !border-background-light hover:!border-text-main hover:bg-background-light hover:text-text-main disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-        {isPending ? "EXECUTING..." : "PLACE_ORDER"}
-        {!isPending && <ArrowRight className="w-4 h-4" />}
+        className={`w-full py-3.5 font-semibold text-sm rounded-xl flex items-center justify-center gap-2 transition-all ${
+          type === "long" 
+            ? "bg-success hover:bg-success/90 text-background glow-success" 
+            : "bg-danger hover:bg-danger/90 text-foreground glow-danger"
+        } disabled:opacity-50 disabled:cursor-not-allowed`}
+      >
+        {isPending ? (
+          <>
+            <span className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />
+            Executing...
+          </>
+        ) : (
+          <>
+            Place {type === "long" ? "Long" : "Short"} Order
+            <ArrowRight className="w-4 h-4" />
+          </>
+        )}
       </button>
 
+      {/* Success Message */}
       {isSuccess && (
-        <div className="bg-chart-green/20 border-l-4 border-chart-green p-2 text-xs font-bold text-text-main">
-          ORDER EXECUTED SUCCESSFULLY
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-success-bg border border-success/20 text-success text-sm animate-fade-in">
+          <CheckCircle size={16} />
+          Order executed successfully
         </div>
       )}
       
+      {/* Error Message */}
       {error && (
-        <div className="bg-chart-red/20 border-l-4 border-chart-red p-2 text-xs font-bold text-text-main">
-          {(error as unknown as { response: { data: { message: string } } }).response?.data?.message || "EXECUTION FAILED"}
+        <div className="flex items-center gap-3 p-4 rounded-xl bg-danger-bg border border-danger/20 text-danger text-sm animate-fade-in">
+          <AlertCircle size={16} />
+          {(error as unknown as { response: { data: { message: string } } }).response?.data?.message || "Execution failed"}
         </div>
       )}
     </form>

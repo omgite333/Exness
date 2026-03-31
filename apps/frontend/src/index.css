@@ -4,127 +4,238 @@
 /* ---------------- ROOT ---------------- */
 :root {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-
-  color: #ffffff;
-  background-color: #020617;
-
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 /* ---------------- THEME TOKENS ---------------- */
 @theme inline {
-  --color-primary: #3b82f6; /* blue */
-  --color-accent: #06b6d4; /* cyan */
-
-  --color-bg-main: #020617;
-  --color-bg-card: #0f172a;
-
-  --color-text-main: #ffffff;
-  --color-text-muted: #94a3b8;
-
-  --color-green: #22c55e;
-  --color-red: #ef4444;
-
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  /* Primary palette - warm amber/gold for trading */
+  --color-primary: #f59e0b;
+  --color-primary-hover: #d97706;
+  --color-accent: #fbbf24;
+  
+  /* Background hierarchy */
+  --color-background: #0a0a0a;
+  --color-background-secondary: #141414;
+  --color-background-tertiary: #1a1a1a;
+  --color-surface: #1f1f1f;
+  --color-surface-hover: #262626;
+  
+  /* Text hierarchy */
+  --color-foreground: #fafafa;
+  --color-foreground-secondary: #a1a1aa;
+  --color-foreground-muted: #71717a;
+  
+  /* Borders */
+  --color-border: #27272a;
+  --color-border-light: #3f3f46;
+  
+  /* Trading colors */
+  --color-success: #22c55e;
+  --color-success-bg: rgba(34, 197, 94, 0.1);
+  --color-danger: #ef4444;
+  --color-danger-bg: rgba(239, 68, 68, 0.1);
+  
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
 }
 
 /* ---------------- BASE ---------------- */
 body {
   margin: 0;
   min-height: 100vh;
-  background: #020617;
+  background: var(--color-background);
+  color: var(--color-foreground);
+}
+
+/* ---------------- SELECTION ---------------- */
+::selection {
+  background: rgba(245, 158, 11, 0.3);
+  color: var(--color-foreground);
 }
 
 /* ---------------- TYPOGRAPHY ---------------- */
 .font-display {
   font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
-.font-heading {
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
+.font-mono {
+  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
 }
 
-/* ---------------- GLASS UTILS ---------------- */
-.glass {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.1);
-}
-
-.glass-strong {
-  background: rgba(15, 23, 42, 0.8);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.15);
-}
-
-/* ---------------- GLOW EFFECTS ---------------- */
-.glow-blue {
-  box-shadow: 0 0 40px rgba(59,130,246,0.25);
-}
-
-.glow-cyan {
-  box-shadow: 0 0 40px rgba(6,182,212,0.25);
-}
-
-/* ---------------- BUTTON ---------------- */
-button {
-  border-radius: 10px;
-  border: none;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-button:hover {
-  transform: scale(1.03);
-}
-
-/* ---------------- INPUT ---------------- */
-input {
-  border-radius: 10px;
-  outline: none;
-}
-
-/* ---------------- SCROLLBAR (MODERN) ---------------- */
+/* ---------------- SCROLLBAR ---------------- */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.1);
-  border-radius: 10px;
+  background: var(--color-border);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.2);
+  background: var(--color-border-light);
 }
 
-/* ---------------- GRID BACKGROUND ---------------- */
-.bg-grid {
-  background-image:
-    linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
-  background-size: 40px 40px;
+/* ---------------- UTILITIES ---------------- */
+.glass {
+  background: rgba(26, 26, 26, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--color-border);
+}
+
+.glow-primary {
+  box-shadow: 0 0 60px rgba(245, 158, 11, 0.15);
+}
+
+.glow-success {
+  box-shadow: 0 0 40px rgba(34, 197, 94, 0.2);
+}
+
+.glow-danger {
+  box-shadow: 0 0 40px rgba(239, 68, 68, 0.2);
+}
+
+/* ---------------- GRADIENTS ---------------- */
+.gradient-text {
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--color-primary), transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ---------------- INPUT RESET ---------------- */
+input, select, textarea {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: all 0.2s ease;
+  color: var(--color-foreground);
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+input::placeholder {
+  color: var(--color-foreground-muted);
+}
+
+/* ---------------- BUTTON RESET ---------------- */
+button {
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-radius: var(--radius-md);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* ---------------- ANIMATIONS ---------------- */
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
-  100% { transform: translateY(0px); }
-}
-
-.animate-float {
-  animation: float 4s ease-in-out infinite;
-}
-
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.animate-fade {
-  animation: fadeIn 0.5s ease-in-out;
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* ---------------- TICKER ANIMATION ---------------- */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+/* ---------------- CHART CONTAINER ---------------- */
+.chart-container {
+  background: var(--color-background);
+  border-radius: var(--radius-lg);
+}
+
+/* ---------------- CARD VARIANTS ---------------- */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.card-hover:hover {
+  border-color: var(--color-border-light);
+  background: var(--color-surface-hover);
+}
+
+/* ---------------- FOCUS RING ---------------- */
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-primary);
 }

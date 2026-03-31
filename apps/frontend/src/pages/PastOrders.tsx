@@ -24,7 +24,7 @@ function formatAsset(raw: string) {
 function formatDate(iso: string) {
   const d = new Date(iso);
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) +
-    " · " + d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+    " at " + d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
 }
 
 export default function PastOrders() {
@@ -42,41 +42,41 @@ export default function PastOrders() {
   const winRate = data?.length ? Math.round((wins / data.length) * 100) : 0;
 
   return (
-    <div className="min-h-screen bg-[#080c14] text-white font-sans flex flex-col">
+    <div className="min-h-screen bg-background text-foreground font-sans flex flex-col">
 
       {/* NAV */}
-      <nav className="h-12 shrink-0 flex items-center justify-between px-6 bg-[#0d1117] border-b border-white/5">
+      <nav className="h-14 shrink-0 flex items-center justify-between px-6 bg-background-secondary border-b border-border">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-md bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-[10px] font-bold">EX</div>
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-xs font-bold text-background">EX</div>
             <span className="font-semibold text-sm tracking-tight">Exness</span>
           </div>
-          <div className="w-px h-4 bg-white/10" />
+          <div className="w-px h-5 bg-border" />
           <Link
             to="/trade"
-            className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors"
+            className="flex items-center gap-1.5 text-sm text-foreground-muted hover:text-foreground transition-colors"
           >
-            <ArrowLeft size={13} /> Back to Trading
+            <ArrowLeft size={14} /> Back to Trading
           </Link>
         </div>
-        <p className="text-xs text-gray-600">Trade History</p>
+        <p className="text-sm text-foreground-muted">Trade History</p>
       </nav>
 
       <main className="flex-1 p-6 lg:p-8 max-w-7xl mx-auto w-full">
 
         {/* HEADER */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold mb-1">Trade History</h1>
-          <p className="text-gray-500 text-sm">All closed and liquidated positions</p>
+          <h1 className="text-2xl font-bold mb-1 text-foreground">Trade History</h1>
+          <p className="text-foreground-secondary text-sm">All closed and liquidated positions</p>
         </div>
 
         {/* SUMMARY CARDS */}
         {data && data.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {[
               {
                 label: "Total Trades",
-                value: data.length,
+                value: data.length.toString(),
                 sub: `${wins}W / ${losses}L`,
               },
               {
@@ -94,47 +94,47 @@ export default function PastOrders() {
               },
               {
                 label: "Liquidated",
-                value: data.filter((t) => t.liquidated).length,
+                value: data.filter((t) => t.liquidated).length.toString(),
                 sub: "forced closes",
               },
             ].map((card, i) => (
-              <div key={i} className="bg-[#0d1117] border border-white/5 rounded-xl p-4">
-                <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-2">{card.label}</p>
-                <p className={`text-xl font-bold font-mono ${card.colored ? (card.positive ? "text-emerald-400" : "text-red-400") : "text-white"}`}>
+              <div key={i} className="card p-5">
+                <p className="text-xs text-foreground-muted uppercase tracking-wide mb-2">{card.label}</p>
+                <p className={`text-2xl font-bold font-mono ${card.colored ? (card.positive ? "text-success" : "text-danger") : "text-foreground"}`}>
                   {card.value}
                 </p>
-                <p className="text-[10px] text-gray-600 mt-1">{card.sub}</p>
+                <p className="text-xs text-foreground-muted mt-1">{card.sub}</p>
               </div>
             ))}
           </div>
         )}
 
         {/* TABLE */}
-        <div className="bg-[#0d1117] border border-white/5 rounded-2xl overflow-hidden">
+        <div className="card overflow-hidden">
 
           {/* Loading */}
           {isLoading && (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
-              <Loader2 className="text-gray-600 animate-spin" size={20} />
-              <p className="text-sm text-gray-600">Loading trade history...</p>
+              <Loader2 className="text-foreground-muted animate-spin" size={20} />
+              <p className="text-sm text-foreground-muted">Loading trade history...</p>
             </div>
           )}
 
           {/* Error */}
           {isError && (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
-              <AlertCircle className="text-red-500/50" size={20} />
-              <p className="text-sm text-gray-500">Failed to load trades</p>
+              <AlertCircle className="text-danger" size={20} />
+              <p className="text-sm text-foreground-muted">Failed to load trades</p>
             </div>
           )}
 
           {/* Empty */}
           {!isLoading && !isError && data?.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
-              <InboxIcon className="text-gray-700" size={28} />
-              <p className="text-sm text-gray-500">No closed trades yet</p>
-              <Link to="/trade" className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
-                Start trading →
+              <InboxIcon className="text-foreground-muted" size={28} />
+              <p className="text-sm text-foreground-muted">No closed trades yet</p>
+              <Link to="/trade" className="text-sm text-primary hover:text-primary-hover transition-colors">
+                Start trading
               </Link>
             </div>
           )}
@@ -144,11 +144,11 @@ export default function PastOrders() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-white/5">
+                  <tr className="border-b border-border bg-background-tertiary">
                     {["Date", "Asset", "Side", "Size", "Entry", "Exit", "P&L", "Status"].map((h, i) => (
                       <th
                         key={h}
-                        className={`px-5 py-3 text-[10px] font-medium text-gray-500 uppercase tracking-widest ${i >= 3 ? "text-right" : "text-left"} ${i === 7 ? "text-center" : ""}`}
+                        className={`px-5 py-3 text-xs font-medium text-foreground-muted uppercase tracking-wide ${i >= 3 ? "text-right" : "text-left"} ${i === 7 ? "text-center" : ""}`}
                       >
                         {h}
                       </th>
@@ -163,34 +163,34 @@ export default function PastOrders() {
                     return (
                       <tr
                         key={trade.id}
-                        className={`border-b border-white/3 hover:bg-white/2 transition-colors ${idx === data.length - 1 ? "border-b-0" : ""}`}
+                        className={`border-b border-border last:border-b-0 hover:bg-surface-hover transition-colors`}
                       >
-                        <td className="px-5 py-3.5 text-xs text-gray-500 whitespace-nowrap">
+                        <td className="px-5 py-4 text-sm text-foreground-secondary whitespace-nowrap">
                           {formatDate(trade.createdAt)}
                         </td>
-                        <td className="px-5 py-3.5">
-                          <span className="text-sm font-medium text-white">{formatAsset(trade.asset)}</span>
+                        <td className="px-5 py-4">
+                          <span className="text-sm font-semibold text-foreground">{formatAsset(trade.asset)}</span>
                         </td>
-                        <td className="px-5 py-3.5">
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium ${isLong ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"}`}>
+                        <td className="px-5 py-4">
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold ${isLong ? "bg-success-bg text-success" : "bg-danger-bg text-danger"}`}>
                             {isLong ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
                             {trade.type.toUpperCase()}
                           </span>
                         </td>
-                        <td className="px-5 py-3.5 text-right text-sm font-mono text-gray-300">
+                        <td className="px-5 py-4 text-right text-sm font-mono text-foreground">
                           {trade.quantity}
                         </td>
-                        <td className="px-5 py-3.5 text-right text-sm font-mono text-gray-400">
+                        <td className="px-5 py-4 text-right text-sm font-mono text-foreground-secondary">
                           ${toDecimalNumber(trade.openPrice, trade.decimal).toLocaleString()}
                         </td>
-                        <td className="px-5 py-3.5 text-right text-sm font-mono text-gray-400">
+                        <td className="px-5 py-4 text-right text-sm font-mono text-foreground-secondary">
                           ${toDecimalNumber(trade.closePrice, trade.decimal).toLocaleString()}
                         </td>
-                        <td className={`px-5 py-3.5 text-right text-sm font-bold font-mono ${isProfit ? "text-emerald-400" : pnlReal < 0 ? "text-red-400" : "text-gray-400"}`}>
+                        <td className={`px-5 py-4 text-right text-sm font-bold font-mono ${isProfit ? "text-success" : pnlReal < 0 ? "text-danger" : "text-foreground-muted"}`}>
                           {pnlReal > 0 ? "+" : ""}${Math.abs(pnlReal).toFixed(2)}
                         </td>
-                        <td className="px-5 py-3.5 text-center">
-                          <span className={`px-2.5 py-1 rounded-lg text-[10px] font-medium ${trade.liquidated ? "bg-red-500/10 text-red-400 border border-red-500/15" : "bg-white/5 text-gray-400"}`}>
+                        <td className="px-5 py-4 text-center">
+                          <span className={`px-2.5 py-1 rounded-lg text-xs font-medium ${trade.liquidated ? "bg-danger-bg text-danger" : "bg-surface text-foreground-muted"}`}>
                             {trade.liquidated ? "Liquidated" : "Closed"}
                           </span>
                         </td>

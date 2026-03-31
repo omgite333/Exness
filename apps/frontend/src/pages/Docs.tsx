@@ -6,9 +6,6 @@ const COMPONENTS = [
     icon: Radio,
     name: "Poller",
     tag: "Data Ingestion",
-    color: "text-orange-400",
-    bg: "bg-orange-500/10",
-    border: "border-orange-500/15",
     desc: "Connects to Backpack Exchange via WebSocket, subscribes to BTC/ETH/SOL order book tickers, converts raw prices to 4-decimal integer format, and publishes to Redis every 100ms.",
     tech: ["WebSocket", "Backpack Exchange", "Redis Pub/Sub"],
   },
@@ -16,9 +13,6 @@ const COMPONENTS = [
     icon: Globe,
     name: "WebSocket Server",
     tag: "Real-time Layer",
-    color: "text-cyan-400",
-    bg: "bg-cyan-500/10",
-    border: "border-cyan-500/15",
     desc: "Fans out price updates from Redis to all connected browser clients. Handles user identity mapping so trade confirmations are pushed only to the right user.",
     tech: ["ws", "Redis Pub/Sub", "Pattern Subscribe"],
   },
@@ -26,9 +20,6 @@ const COMPONENTS = [
     icon: Cpu,
     name: "Engine",
     tag: "Matching Core",
-    color: "text-violet-400",
-    bg: "bg-violet-500/10",
-    border: "border-violet-500/15",
     desc: "In-memory order book and balance ledger. Processes trade-open and trade-close in a single-threaded loop for deterministic execution. Snapshots to MongoDB every 5 seconds for crash recovery.",
     tech: ["Redis Streams", "MongoDB", "TypeScript"],
   },
@@ -36,9 +27,6 @@ const COMPONENTS = [
     icon: Server,
     name: "Backend",
     tag: "API Server",
-    color: "text-blue-400",
-    bg: "bg-blue-500/10",
-    border: "border-blue-500/15",
     desc: "Express REST API that validates requests, routes to Redis via streams, and awaits engine responses with a 3.5s timeout. Handles JWT auth, guest sessions, and magic-link email flow.",
     tech: ["Express 5", "Redis Streams", "JWT", "Resend"],
   },
@@ -46,9 +34,6 @@ const COMPONENTS = [
     icon: Database,
     name: "Databases",
     tag: "Persistence",
-    color: "text-emerald-400",
-    bg: "bg-emerald-500/10",
-    border: "border-emerald-500/15",
     desc: "PostgreSQL (Neon serverless) stores user accounts and closed trade history via Drizzle ORM. MongoDB holds engine snapshots for warm restarts without data loss.",
     tech: ["PostgreSQL", "MongoDB", "Drizzle ORM", "Neon"],
   },
@@ -56,9 +41,6 @@ const COMPONENTS = [
     icon: Zap,
     name: "Frontend",
     tag: "Trading UI",
-    color: "text-yellow-400",
-    bg: "bg-yellow-500/10",
-    border: "border-yellow-500/15",
     desc: "React + Vite SPA with TanStack Query for server state, Zustand for local state, and Lightweight Charts for candlestick rendering. WebSocket connection provides sub-100ms price updates.",
     tech: ["React 19", "Vite", "TanStack Query", "Lightweight Charts"],
   },
@@ -77,30 +59,27 @@ export default function Docs() {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-[#080c14] text-white font-sans min-h-screen">
-
-      {/* Subtle grid */}
-      <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" />
+    <div className="bg-background text-foreground font-sans min-h-screen">
 
       {/* NAV */}
-      <nav className="sticky top-0 z-50 bg-[#080c14]/90 backdrop-blur-xl border-b border-white/5 h-12 flex items-center">
+      <nav className="sticky top-0 z-50 bg-background/90 backdrop-blur-xl border-b border-border h-14 flex items-center">
         <div className="max-w-5xl mx-auto px-6 w-full flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate("/")}
               className="flex items-center gap-2.5"
             >
-              <div className="w-6 h-6 rounded-md bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-[10px] font-bold">EX</div>
+              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-xs font-bold text-background">EX</div>
               <span className="font-semibold text-sm tracking-tight">Exness</span>
             </button>
-            <div className="w-px h-4 bg-white/10" />
-            <span className="text-xs text-gray-500">Architecture Docs</span>
+            <div className="w-px h-5 bg-border" />
+            <span className="text-sm text-foreground-muted">Architecture Docs</span>
           </div>
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors"
+            className="flex items-center gap-1.5 text-sm text-foreground-muted hover:text-foreground transition-colors"
           >
-            <ArrowLeft size={13} /> Back
+            <ArrowLeft size={14} /> Back
           </button>
         </div>
       </nav>
@@ -109,35 +88,35 @@ export default function Docs() {
 
         {/* HERO */}
         <section className="mb-20">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/15 text-blue-400 text-xs font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium mb-6">
             System Documentation
           </div>
           <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-5">
             How it{" "}
-            <span className="bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">works</span>
+            <span className="gradient-text">works</span>
           </h1>
-          <p className="text-gray-400 text-base leading-relaxed max-w-2xl">
+          <p className="text-foreground-secondary text-base leading-relaxed max-w-2xl">
             A fully distributed trading system built for low-latency execution. Orders are processed in-memory with Redis as the messaging backbone between six independent services.
           </p>
         </section>
 
         {/* FLOW DIAGRAM */}
         <section className="mb-20">
-          <h2 className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-6">Execution Flow</h2>
-          <div className="bg-[#0d1117] border border-white/5 rounded-2xl p-8 overflow-x-auto">
+          <h2 className="text-xs font-medium text-foreground-muted uppercase tracking-widest mb-6">Execution Flow</h2>
+          <div className="card p-8 overflow-x-auto">
             <div className="flex items-center gap-0 min-w-max mx-auto">
               {FLOW.map((step, i) => (
                 <div key={i} className="flex items-center">
                   <div className="flex flex-col items-center gap-2">
-                    <div className="px-4 py-2.5 rounded-xl bg-[#080c14] border border-white/8 text-center min-w-[90px]">
-                      <p className="text-xs font-semibold text-white whitespace-nowrap">{step.label}</p>
-                      <p className="text-[10px] text-gray-600 mt-0.5">{step.sub}</p>
+                    <div className="px-5 py-3 rounded-xl bg-background border border-border text-center min-w-[100px]">
+                      <p className="text-sm font-semibold text-foreground whitespace-nowrap">{step.label}</p>
+                      <p className="text-xs text-foreground-muted mt-0.5">{step.sub}</p>
                     </div>
                   </div>
                   {i < FLOW.length - 1 && (
-                    <div className="flex items-center gap-0 mx-1">
-                      <div className="w-6 h-px bg-white/10" />
-                      <ArrowRight size={10} className="text-gray-700 -ml-0.5" />
+                    <div className="flex items-center gap-0 mx-2">
+                      <div className="w-8 h-px bg-border" />
+                      <ArrowRight size={12} className="text-foreground-muted -ml-1" />
                     </div>
                   )}
                 </div>
@@ -148,28 +127,28 @@ export default function Docs() {
 
         {/* COMPONENTS */}
         <section className="mb-20">
-          <h2 className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-6">System Components</h2>
+          <h2 className="text-xs font-medium text-foreground-muted uppercase tracking-widest mb-6">System Components</h2>
           <div className="grid md:grid-cols-2 gap-4">
             {COMPONENTS.map((c, i) => (
               <div
                 key={i}
-                className={`group p-5 rounded-2xl bg-[#0d1117] border border-white/5 hover:border-white/10 transition-all`}
+                className="card p-6 group hover:border-border-light transition-all"
               >
                 <div className="flex items-start gap-4 mb-4">
-                  <div className={`w-9 h-9 rounded-xl ${c.bg} border ${c.border} flex items-center justify-center shrink-0`}>
-                    <c.icon size={16} className={c.color} />
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                    <c.icon size={18} className="text-primary" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-0.5">
-                      <h3 className="font-semibold text-sm text-white">{c.name}</h3>
-                      <span className={`text-[9px] px-2 py-0.5 rounded-full ${c.bg} ${c.color} border ${c.border} font-medium`}>{c.tag}</span>
+                      <h3 className="font-semibold text-base text-foreground">{c.name}</h3>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-medium">{c.tag}</span>
                     </div>
                   </div>
                 </div>
-                <p className="text-gray-400 text-xs leading-relaxed mb-4">{c.desc}</p>
-                <div className="flex flex-wrap gap-1.5">
+                <p className="text-foreground-secondary text-sm leading-relaxed mb-4">{c.desc}</p>
+                <div className="flex flex-wrap gap-2">
                   {c.tech.map((t) => (
-                    <span key={t} className="text-[10px] px-2 py-0.5 rounded-md bg-white/4 border border-white/5 text-gray-500">
+                    <span key={t} className="text-xs px-2.5 py-1 rounded-lg bg-surface border border-border text-foreground-muted">
                       {t}
                     </span>
                   ))}
@@ -181,8 +160,8 @@ export default function Docs() {
 
         {/* KEY FACTS */}
         <section>
-          <h2 className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-6">Key Design Decisions</h2>
-          <div className="space-y-px rounded-2xl overflow-hidden border border-white/5">
+          <h2 className="text-xs font-medium text-foreground-muted uppercase tracking-widest mb-6">Key Design Decisions</h2>
+          <div className="card overflow-hidden">
             {[
               ["Integer prices", "All prices stored as integers with a decimal field (e.g. 870000 = 87.0000) to avoid floating point drift across the Redis boundary."],
               ["Single-threaded engine", "The engine processes one message at a time from a Redis consumer group, guaranteeing no race conditions without locks."],
@@ -190,11 +169,11 @@ export default function Docs() {
               ["Guest sessions", "Unauthenticated users get a JWT-signed guest ID cookie and $50,000 virtual balance so they can trade immediately."],
               ["Crash recovery", "Engine snapshots full state to MongoDB every 5s. On restart it replays any Redis stream messages it missed while offline."],
             ].map(([title, desc], i) => (
-              <div key={i} className="flex gap-4 bg-[#0d1117] px-5 py-4">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-500/50 mt-1.5 shrink-0" />
+              <div key={i} className="flex gap-4 px-6 py-5 border-b border-border last:border-b-0 hover:bg-surface-hover transition-colors">
+                <div className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />
                 <div>
-                  <p className="text-sm font-medium text-white mb-0.5">{title}</p>
-                  <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
+                  <p className="text-sm font-semibold text-foreground mb-1">{title}</p>
+                  <p className="text-sm text-foreground-secondary leading-relaxed">{desc}</p>
                 </div>
               </div>
             ))}
@@ -205,13 +184,13 @@ export default function Docs() {
         <div className="mt-16 flex flex-col sm:flex-row gap-3 items-start">
           <button
             onClick={() => navigate("/trade")}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-[#080c14] font-semibold text-sm hover:bg-gray-100 transition-all"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-background font-semibold text-sm hover:bg-primary-hover transition-all glow-primary"
           >
             Try the Platform <ArrowRight size={14} />
           </button>
           <button
             onClick={() => navigate("/login")}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/10 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-all"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl border border-border text-sm text-foreground-secondary hover:bg-surface hover:text-foreground transition-all"
           >
             Create Account
           </button>
