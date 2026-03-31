@@ -1,0 +1,29 @@
+{
+  "name": "@repo/types",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "exports": {
+    "./types": "./dist/index.js",
+    "./zodSchema": "./dist/zodSchema.js"
+  },
+  "typesVersions": {
+    "*": {
+      "types": ["./dist/index.d.ts"],
+      "zodSchema": ["./dist/zodSchema.d.ts"]
+    }
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "typescript": "^5"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "zod": "^4.1.5"
+  }
+}
