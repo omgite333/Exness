@@ -3,7 +3,8 @@
 A full-stack, real-time perpetual futures trading platform built as a **Turborepo monorepo**. Users can trade BTC, ETH, and SOL perpetual contracts with leverage, against live price feeds from Binance Futures. The system supports both authenticated users (magic-link email) and unauthenticated guests.
 
 
-<img width="1917" height="901" alt="image" src="https://github.com/user-attachments/assets/4e1cf117-2c36-4372-acc5-73f513052281" />
+<img width="1917" height="901" alt="image" src=<img width="1919" height="948" alt="image" src="https://github.com/user-attachments/assets/263f69ad-3bba-4a57-9445-971f521d294e" />
+ />
 
 ---
 
