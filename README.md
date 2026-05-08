@@ -7,7 +7,29 @@ A full-stack, real-time perpetual futures trading platform built as a **Turborep
  />
 
 ---
+End-to-End Data Flows
+Opening a Trade:
 
+User inputs trade details (Leverage, Asset, Size)
+  → POST /api/v1/trade/open
+  → Backend pushes command to Redis Stream (stream:app:info)
+  → Engine pulls from Stream
+  → Checks balance, calculates margin, opens trade in-memory
+  → Engine pushes ACK to Redis Response Stream (stream:engine:response)
+  → Backend resolves HTTP request
+  → Frontend reflects new open order and updated balance
+Real-Time Price Updates & Liquidations:
+
+Poller receives tick from Backpack Exchange
+  → Publishes tick via Redis PubSub (ws:price:update)
+      → WS Server sends tick to UI
+  → Pushes tick to Redis Stream (stream:app:info)
+      → Engine reads tick
+      → Checks if any open positions are below liquidation threshold (-90% Margin)
+      → YES: Closes trade, deducts margin
+          → Persists closure to PostgreSQL
+          → Publishes user state change via Redis PubSub (ws:user:state:{userId})
+          → WS Server notifies specific UI client to refetch balances and trades
 ## Quick Start
 
 > Make sure you have **Node.js ≥ 20**, **pnpm ≥ 9**, **Bun ≥ 1.0**, **Redis**, **PostgreSQL**, and **MongoDB** running before proceeding. See [Prerequisites](#prerequisites) for details.
