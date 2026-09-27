@@ -5,7 +5,6 @@ import { useQuotesStore } from "@/lib/quotesStore";
 import { appToBackendSymbol } from "@/lib/symbols";
 import { toDecimalNumber } from "@/lib/utils";
 import { wsClient } from "@/lib/ws";
-import { useSessionStore } from "@/lib/session";
 
 const SYMBOLS = ["BTCUSDC", "ETHUSDC", "SOLUSDC"];
 const LEVERAGES = ["1x", "5x", "10x", "20x", "50x", "100x"];
@@ -21,41 +20,40 @@ export default function TradeForm() {
 
   const queryClient = useQueryClient();
   const { quotes } = useQuotesStore();
-  const userId = useSessionStore((s) => s.userId);
-  const isAuthenticated = useSessionStore((s) => s.isAuthenticated);
 
-  const { mutate: placeOrder, isPending } = useMutation({
-    mutationFn: async () => {
-      const symbol = appToBackendSymbol(selectedSymbol);
-      const qty = parseFloat(quantity);
+ const { mutate: placeOrder, isPending } = useMutation({
+  mutationFn: async () => {
+    const symbol = appToBackendSymbol(selectedSymbol);
+    const qty = parseFloat(quantity);
 
-      if (!qty || qty <= 0) throw new Error("Quantity must be greater than 0");
+    if (!qty || qty <= 0) throw new Error("Quantity must be greater than 0");
+    if (!q) throw new Error("No live price for this asset yet");
 
-      const res = await api.post("/api/trades/order", {
-        userId,
-        asset: symbol,
-        type: side,
-        quantity: qty,
-        leverage: parseInt(leverage),
-        slippage: parseFloat(slippage),
-        isMockOrder: !isAuthenticated,
-      });
+    const res = await api.post("/trade/open", {
+      asset: symbol,
+      type: side,
+      quantity: qty,
+      leverage: parseInt(leverage),
+      slippage: parseFloat(slippage.replace("%", "")),
+      openPrice: entryDec,
+      decimal,
+    });
 
-      if (res.data?.status === "failed") {
-        throw new Error(res.data.error || "Order rejected");
-      }
-      return res.data;
-    },
-    onSuccess: () => {
-      setError(null);
-      queryClient.invalidateQueries({ queryKey: ["openOrders"] });
-      queryClient.invalidateQueries({ queryKey: ["balance.usd"] });
-      queryClient.invalidateQueries({ queryKey: ["trade-history"] });
-    },
-    onError: (err: any) => {
-      setError(err.message || "Order failed");
-    },
-  });
+    if (res.data?.status === "failed") {
+      throw new Error(res.data.error || "Order rejected");
+    }
+    return res.data;
+  },
+  onSuccess: () => {
+    setError(null);
+    queryClient.invalidateQueries({ queryKey: ["openOrders"] });
+    queryClient.invalidateQueries({ queryKey: ["balance.usd"] });
+    queryClient.invalidateQueries({ queryKey: ["trade-history"] });
+  },
+  onError: (err: any) => {
+    setError(err.message || "Order failed");
+  },
+});
 
 const handleSubmit = () => {
   if (!q) {
