@@ -1,32 +1,22 @@
 # syntax=docker/dockerfile:1
-#
-# Build context MUST be the monorepo root, e.g.:
-#   docker build -f apps/backend/Dockerfile -t exness-backend .
-# (docker-compose.yml at the repo root is already set up this way.)
-
-FROM node:20-alpine AS base
-RUN corepack enable
-RUN apk add --no-cache libc6-compat
-
-# ---- 1. Prune the monorepo down to only what "backend" needs ----
-FROM base AS pruner
+FROM node:20-alpine AS builder
 WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
+
 COPY . .
-RUN npx turbo prune backend --docker
 
-# ---- 2. Install pruned deps and build ----
-FROM base AS builder
-WORKDIR /app
-COPY --from=pruner /app/out/json/ .
-RUN pnpm install --frozen-lockfile
-COPY --from=pruner /app/out/full/ .
-RUN pnpm turbo run build --filter=backend...
+ARG VITE_API_BASE_URL
+ARG VITE_WS_URL
+ARG VITE_BINANCE_KLINES_API_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL \
+    VITE_WS_URL=$VITE_WS_URL \
+    VITE_BINANCE_KLINES_API_URL=$VITE_BINANCE_KLINES_API_URL
 
-# ---- 3. Slim runtime image ----
-FROM node:20-alpine AS runner
-WORKDIR /app
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-COPY --from=builder /app .
-USER appuser
-EXPOSE 3001
-CMD ["node", "apps/backend/dist/index.js"]
+RUN npm run build
+
+FROM nginx:1.27-alpine AS runner
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
