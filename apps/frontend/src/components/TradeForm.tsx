@@ -35,7 +35,7 @@ export default function TradeForm() {
       quantity: qty,
       leverage: parseInt(leverage),
       slippage: parseFloat(slippage.replace("%", "")),
-      openPrice: entryDec,
+      openPrice,
       decimal,
     });
 
