@@ -22,8 +22,6 @@ export default function TradeForm() {
   const queryClient = useQueryClient();
   const { quotes } = useQuotesStore();
   const userId = useSessionStore((s) => s.userId);
-  const userEmail = useSessionStore((s) => s.userEmail);
-  const wsConnected = useSessionStore((s) => s.wsConnected);
   const isAuthenticated = useSessionStore((s) => s.isAuthenticated);
 
   const { mutate: placeOrder, isPending } = useMutation({
@@ -41,7 +39,6 @@ export default function TradeForm() {
         leverage: parseInt(leverage),
         slippage: parseFloat(slippage),
         isMockOrder: !isAuthenticated,
-        userEmail,
       });
 
       if (res.data?.status === "failed") {
@@ -60,14 +57,14 @@ export default function TradeForm() {
     },
   });
 
-  const handleSubmit = () => {
-    if (!wsConnected) {
-      wsClient.connect();
-      setError("Reconnecting to market feed. Try again in a few seconds.");
-      return;
-    }
-    placeOrder();
-  };
+const handleSubmit = () => {
+  if (!q) {
+    wsClient.connect();
+    setError("Reconnecting to market feed. Try again in a few seconds.");
+    return;
+  }
+  placeOrder();
+};
 
   const handleNumericChange = (value: string, setter: (v: string) => void) => {
     const cleaned = value.replace(/[^0-9.]/g, "");

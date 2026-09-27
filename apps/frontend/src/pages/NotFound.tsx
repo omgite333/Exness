@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, Home, LineChart } from "lucide-react";
+import { Home, LineChart } from "lucide-react";
 import Logo from "@/components/Logo";
 
 export default function NotFound() {
