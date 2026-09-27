@@ -1,0 +1,120 @@
+name: exness
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: exness
+      POSTGRES_PASSWORD: exness
+      POSTGRES_DB: exness
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U exness -d exness"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mongodb:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongodata:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    image: ghcr.io/omgite333/exness-migrate:latest
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://exness:exness@postgres:5432/exness
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  backend:
+    image: ghcr.io/omgite333/exness-backend:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: development # plain `pg` driver against the local Postgres container, not Neon's
+      DATABASE_URL: postgresql://exness:exness@postgres:5432/exness
+      REDIS_URL: redis://redis:6379
+      HTTP_PORT: 3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  engine:
+    image: ghcr.io/omgite333/exness-engine:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: development
+      MONGODB_URL: mongodb://mongodb:27017/Exness
+      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgresql://exness:exness@postgres:5432/exness
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  poller:
+    image: ghcr.io/omgite333/exness-poller:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  web-socket:
+    image: ghcr.io/omgite333/exness-web-socket:latest
+    restart: unless-stopped
+    environment:
+      WS_PORT: 8080
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "8080:8080"
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  frontend:
+    image: ghcr.io/omgite333/exness-frontend:latest
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+      - web-socket
+
+volumes:
+  pgdata:
+  mongodata:

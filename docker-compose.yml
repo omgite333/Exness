@@ -1,0 +1,140 @@
+name: exness
+
+services:
+  # ---------------------------------------------------------------- infra --
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: exness
+      POSTGRES_PASSWORD: exness
+      POSTGRES_DB: exness
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U exness -d exness"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mongodb:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongodata:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ---------------------------------------------------- one-shot db setup --
+  migrate:
+    build:
+      context: .
+      dockerfile: packages/db/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://exness:exness@postgres:5432/exness
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  # --------------------------------------------------------------- apps  --
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development # keeps @repo/db on the plain `pg` driver (not Neon's) — see README-DOCKER.md
+      DATABASE_URL: postgresql://exness:exness@postgres:5432/exness
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-dev-only-change-me}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      HTTP_PORT: 3001
+      API_BASE_URL: ${API_BASE_URL:-http://localhost:3001/api/v1}
+      RESEND_API: ${RESEND_API:-}
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  engine:
+    build:
+      context: .
+      dockerfile: apps/engine/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development # keeps @repo/db on the plain `pg` driver (not Neon's) — see README-DOCKER.md
+      MONGODB_URL: mongodb://mongodb:27017/Exness
+      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgresql://exness:exness@postgres:5432/exness
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  poller:
+    build:
+      context: .
+      dockerfile: apps/poller/Dockerfile
+    restart: unless-stopped
+    environment:
+      BACKPACK_URL: ${BACKPACK_URL:-wss://ws.backpack.exchange}
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  web-socket:
+    build:
+      context: .
+      dockerfile: apps/web-socket/Dockerfile
+    restart: unless-stopped
+    environment:
+      WS_PORT: 8080
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "8080:8080"
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3001/api/v1}
+        VITE_WS_URL: ${VITE_WS_URL:-ws://localhost:8080}
+        VITE_BINANCE_KLINES_API_URL: ${VITE_BINANCE_KLINES_API_URL:-https://fapi.binance.com/fapi/v1/klines}
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+      - web-socket
+
+volumes:
+  pgdata:
+  mongodata:
