@@ -16,10 +16,10 @@ function FlashPrice({ value, decimal, isSelected }: { value: number; decimal: nu
   }, [value]);
 
   const cls =
-    dir === "up" ? "text-chart-green" : dir === "down" ? "text-chart-red" : isSelected ? "text-white/90" : "text-text-main/80";
+    dir === "up" ? "text-bull" : dir === "down" ? "text-bear" : isSelected ? "text-fg" : "text-fg/80";
 
   return (
-    <span className={`transition-colors duration-300 ${cls}`}>
+    <span className={`transition-colors duration-300 tabular-nums ${cls}`}>
       {formatPrice(value, decimal)}
     </span>
   );
@@ -31,55 +31,54 @@ export default function QuotesTable() {
   const symbols = ["BTCUSDC", "ETHUSDC", "SOLUSDC"];
 
   return (
-    <div className="flex flex-col gap-2 p-2 w-full">
-        {symbols.map((symbol) => {
-            const q = quotes[symbol];
-            const isSelected = selectedSymbol === symbol;
-            
-            return (
-                <button
-                    key={symbol}
-                    onClick={() => setSelectedSymbol(symbol)}
-                    className={`
-                        group relative flex flex-col items-start p-4 w-full text-left transition-all duration-200 border-2
-                        ${isSelected 
-                            ? "bg-primary border-primary text-white shadow-brutal translate-x-[2px] translate-y-[2px]" 
-                            : "bg-white border-text-main/10 hover:border-text-main hover:shadow-brutal hover:-translate-y-[2px] text-text-main"
-                        }
-                    `}
-                >
-                    <div className="flex justify-between items-center w-full mb-2">
-                        <span className={`font-bold font-mono-retro text-lg tracking-tight ${isSelected ? "text-white" : "text-text-main"}`}>
-                            {symbol.replace("USDC", "")}
-                        </span>
-                    </div>
-                    
-                    {q ? (
-                        <div className="w-full flex flex-col gap-1 mt-1">
-                             <div className="flex justify-between items-center">
-                                <span className={`text-[10px] font-bold uppercase ${isSelected ? "text-white/60" : "text-text-main/40"}`}>Bid</span>
-                                <span className={`font-mono-retro font-bold text-base`}>
-                                     <FlashPrice value={q.bid_price} decimal={q.decimal} isSelected={isSelected} />
-                                </span>
-                             </div>
-                              <div className="flex justify-between items-center">
-                                <span className={`text-[10px] font-bold uppercase ${isSelected ? "text-white/60" : "text-text-main/40"}`}>Ask</span>
-                                <span className={`font-mono-retro font-bold text-base`}>
-                                     <FlashPrice value={q.ask_price} decimal={q.decimal} isSelected={isSelected} />
-                                </span>
-                             </div>
-                        </div>
-                    ) : (
-                        <div className="animate-pulse h-8 w-24 bg-current opacity-10 rounded"></div>
-                    )}
-                    
+    <div className="flex flex-col gap-1 p-2 w-full">
+      {symbols.map((symbol) => {
+        const q = quotes[symbol];
+        const isSelected = selectedSymbol === symbol;
+        const base = symbol.replace("USDC", "");
 
-                    {isSelected && (
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-chart-green"></div>
-                    )}
-                </button>
-            );
-        })}
+        return (
+          <button
+            key={symbol}
+            onClick={() => setSelectedSymbol(symbol)}
+            className={`
+              group relative w-full text-left rounded-xl border px-3.5 py-3 transition-all duration-150
+              ${isSelected
+                ? "bg-brand/[0.08] border-brand/50"
+                : "border-transparent hover:bg-wash"
+              }
+            `}
+          >
+            {isSelected && (
+              <div className="absolute left-0 top-2.5 bottom-2.5 w-[3px] rounded-full bg-brand" />
+            )}
+
+            <div className="font-extrabold text-sm tracking-tight">
+              {base}
+              <span className="ml-1.5 text-[10px] font-semibold text-muted">/ USDC · PERP</span>
+            </div>
+
+            {q ? (
+              <div className="mt-2 space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted font-medium">BID</span>
+                  <span className="font-bold">
+                    <FlashPrice value={q.bid_price} decimal={q.decimal} isSelected={isSelected} />
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted font-medium">ASK</span>
+                  <span className="font-bold">
+                    <FlashPrice value={q.ask_price} decimal={q.decimal} isSelected={isSelected} />
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="animate-pulse h-8 w-24 bg-wash rounded mt-2" />
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }

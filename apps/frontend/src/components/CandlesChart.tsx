@@ -62,8 +62,8 @@ export default function CandlesChart({ symbol, decimal = 2 }: Props) {
 
   function getLayout() {
     return {
-      textColor: "#171707", 
-      background: { color: "#F3EFDE00" }, 
+      textColor: "#9AA0A6", 
+      background: { color: "transparent" }, 
     } as const;
   }
 
@@ -97,11 +97,11 @@ export default function CandlesChart({ symbol, decimal = 2 }: Props) {
       height: initialHeight,
     });
     const series = chart.addSeries(CandlestickSeries, {
-      upColor: "#C1C10B",
-      downColor: "#E73D27",
+      upColor: "#26A69A",
+      downColor: "#EF5350",
       borderVisible: false,
-      wickUpColor: "#C1C10B",
-      wickDownColor: "#E73D27",
+      wickUpColor: "#26A69A",
+      wickDownColor: "#EF5350",
     });
 
     chartRef.current = chart;
@@ -255,7 +255,7 @@ export default function CandlesChart({ symbol, decimal = 2 }: Props) {
   return (
     <div ref={containerRef} className="w-full h-full relative">
 
-       <div className="absolute bottom-[10px] left-2 text-[10px] text-text-main/40 font-bold z-10 pointer-events-none font-mono-retro">
+       <div className="absolute bottom-[10px] left-2 text-[10px] text-muted/60 font-semibold z-10 pointer-events-none">
           UTC
        </div>
     </div>
@@ -268,20 +268,20 @@ export function TimeframeSwitcher({ className }: { className?: string }) {
   const tfs: Timeframe[] = ["1m", "5m", "15m", "1h", "1d"];
 
   return (
-    <div className={`flex items-center gap-0 bg-white/80 backdrop-blur-sm border border-text-main/10 ${className ?? ""}`}>
+    <div className={`flex items-center gap-0.5 bg-panel-2 border border-white/10 rounded-lg p-0.5 ${className ?? ""}`}>
       {tfs.map((tf) => (
         <button
           key={tf}
           onClick={() => setTimeframe(tf)}
           className={`
-            px-2 py-0.5 lg:px-3.5 lg:py-0.5 text-[8px] lg:text-[9px] font-bold font-mono-retro transition-all border-r border-text-main/10 last:border-r-0 uppercase
+            px-2 py-1 lg:px-3 lg:py-1 text-[10px] lg:text-[11px] font-bold transition-all rounded-md uppercase tabular-nums
             ${timeframe === tf
-              ? "bg-primary text-white"
-              : "bg-transparent text-text-main/60 hover:bg-black/5 hover:text-text-main"
+              ? "bg-brand text-black"
+              : "bg-transparent text-muted hover:text-white"
             }
           `}
         >
-          {tf.toUpperCase()}
+          {tf}
         </button>
       ))}
     </div>

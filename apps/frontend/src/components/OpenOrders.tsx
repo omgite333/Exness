@@ -40,38 +40,38 @@ export default function OpenOrders() {
       {/* Mobile card view */}
       <div className="lg:hidden flex flex-col gap-1.5 p-1.5">
         {isLoading && (
-          <div className="text-center text-xs p-4 text-text-main/40 font-bold uppercase">// SYNCING_ORDERS...</div>
+          <div className="text-center text-xs p-4 text-muted font-semibold">Syncing orders...</div>
         )}
         {isError && (
-          <div className="text-center text-xs p-4 text-chart-red font-bold uppercase">// SYNC_ERROR_RETRYING...</div>
+          <div className="text-center text-xs p-4 text-bear font-semibold">Couldn't sync orders — retrying...</div>
         )}
         {!isLoading && !isError && rows.length === 0 && (
-          <div className="text-center text-xs p-8 text-text-main/40 font-bold uppercase">// NO_OPEN_POSITIONS</div>
+          <EmptyState />
         )}
         {!isLoading && !isError && rows.map((r) => (
-          <div key={r.id} className="border-2 border-text-main bg-white/50 p-2">
+          <div key={r.id} className="border border-white/10 bg-panel-2 rounded-xl p-3">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-2">
-                <span className={`text-[10px] px-1.5 py-0.5 font-bold uppercase font-mono-retro ${
-                  r.type === "long" ? "bg-chart-green text-text-main" : "bg-chart-red text-white"
+                <span className={`text-[10px] px-2 py-1 rounded-md font-extrabold uppercase ${
+                  r.type === "long" ? "bg-bull/15 text-bull" : "bg-bear/15 text-bear"
                 }`}>{r.type}</span>
-                <span className="font-bold text-sm font-mono-retro">{r.appSym}</span>
+                <span className="font-bold text-sm">{r.appSym}</span>
               </div>
               <button
                 onClick={() => closeOrder(r.id)}
-                className="p-1.5 hover:bg-chart-red hover:text-white text-chart-red transition-colors border border-transparent hover:border-chart-red"
+                className="p-1.5 rounded-lg hover:bg-bear hover:text-white text-muted transition-colors"
                 title="Close Position"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="flex justify-between mt-2 text-xs font-mono-retro text-text-main/70">
+            <div className="flex justify-between mt-2 text-xs tabular-nums text-muted">
               <span>Entry: {toDecimalNumber(r.openPrice, r.decimal)}</span>
               <span>Mark: {toDecimalNumber(r.current, r.decimal)}</span>
             </div>
-            <div className="flex justify-between mt-1 text-xs font-mono-retro">
-              <span className="text-text-main/70">{r.quantity} × {r.leverage}x</span>
-              <span className={`font-bold ${r.pnlDec >= 0 ? "text-chart-green" : "text-chart-red"}`}>
+            <div className="flex justify-between mt-1 text-xs tabular-nums">
+              <span className="text-muted">{r.quantity} × {r.leverage}x</span>
+              <span className={`font-bold ${r.pnlDec >= 0 ? "text-bull" : "text-bear"}`}>
                 {r.pnlDec > 0 ? "+" : ""}{r.pnlDec.toFixed(r.decimal)}
               </span>
             </div>
@@ -81,35 +81,29 @@ export default function OpenOrders() {
 
       {/* Desktop table view */}
       <table className="hidden lg:table w-full border-collapse text-left">
-        <thead className="bg-background-light sticky top-0 font-mono-retro border-b border-text-main/10">
+        <thead className="bg-panel sticky top-0 border-b border-white/10">
           <tr>
-            <th className="p-3 text-[10px] font-bold uppercase text-text-main/60 tracking-wider">Asset</th>
-            <th className="p-3 text-[10px] font-bold uppercase text-text-main/60 tracking-wider text-center">Type</th>
-            <th className="p-3 text-[10px] font-bold uppercase text-text-main/60 tracking-wider text-right">Entry</th>
-            <th className="p-3 text-[10px] font-bold uppercase text-text-main/60 tracking-wider text-right">Mark</th>
-            <th className="p-3 text-[10px] font-bold uppercase text-text-main/60 tracking-wider text-right">Qty</th>
-            <th className="p-3 text-[10px] font-bold uppercase text-text-main/60 tracking-wider text-right">Lev</th>
-            <th className="p-3 text-[10px] font-bold uppercase text-text-main/60 tracking-wider text-right">PnL</th>
-            <th className="p-3 text-[10px] font-bold uppercase text-text-main/60 tracking-wider text-right">Action</th>
+            <th className="px-4 py-2.5 text-[10px] font-bold uppercase text-muted tracking-widest">Asset</th>
+            <th className="px-4 py-2.5 text-[10px] font-bold uppercase text-muted tracking-widest text-center">Side</th>
+            <th className="px-4 py-2.5 text-[10px] font-bold uppercase text-muted tracking-widest text-right">Entry</th>
+            <th className="px-4 py-2.5 text-[10px] font-bold uppercase text-muted tracking-widest text-right">Mark</th>
+            <th className="px-4 py-2.5 text-[10px] font-bold uppercase text-muted tracking-widest text-right">Qty</th>
+            <th className="px-4 py-2.5 text-[10px] font-bold uppercase text-muted tracking-widest text-right">Lev</th>
+            <th className="px-4 py-2.5 text-[10px] font-bold uppercase text-muted tracking-widest text-right">PnL</th>
+            <th className="px-4 py-2.5 text-[10px] font-bold uppercase text-muted tracking-widest text-right">Action</th>
           </tr>
         </thead>
-        <tbody className="font-mono-retro text-sm">
+        <tbody className="text-sm tabular-nums">
           {isLoading ? (
             <tr>
-              <td
-                className="p-8 text-center text-xs text-text-main/40 font-bold uppercase"
-                colSpan={8}
-              >
-                // SYNCING_ORDERS...
+              <td className="p-8 text-center text-xs text-muted font-semibold" colSpan={8}>
+                Syncing orders...
               </td>
             </tr>
           ) : isError ? (
             <tr>
-              <td
-                className="p-8 text-center text-xs text-chart-red font-bold uppercase"
-                colSpan={8}
-              >
-                // SYNC_ERROR_RETRYING...
+              <td className="p-8 text-center text-xs text-bear font-semibold" colSpan={8}>
+                Couldn't sync orders — retrying...
               </td>
             </tr>
           ) : null}
@@ -117,30 +111,34 @@ export default function OpenOrders() {
           {!isLoading &&
             !isError &&
             rows.map((r) => (
-            <tr key={r.id} className="border-b border-text-main/5 hover:bg-white/50 transition-colors">
-              <td className="p-3 font-bold">{r.appSym}</td>
-              <td className={`p-3 text-center font-bold uppercase text-xs ${r.type === 'long' ? 'text-chart-green' : 'text-chart-red'}`}>
-                {r.type}
+            <tr key={r.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+              <td className="px-4 py-2.5 font-bold">{r.appSym}</td>
+              <td className="px-4 py-2.5 text-center">
+                <span className={`inline-block px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase ${
+                  r.type === "long" ? "bg-bull/15 text-bull" : "bg-bear/15 text-bear"
+                }`}>
+                  {r.type}
+                </span>
               </td>
-              <td className="p-3 text-right">
+              <td className="px-4 py-2.5 text-right text-white/70">
                 {toDecimalNumber(r.openPrice, r.decimal)}
               </td>
-              <td className="p-3 text-right">
+              <td className="px-4 py-2.5 text-right text-white/70">
                 {toDecimalNumber(r.current, r.decimal)}
               </td>
-              <td className="p-3 text-right font-bold">{r.quantity}</td>
-              <td className="p-3 text-right opacity-60">{r.leverage}x</td>
+              <td className="px-4 py-2.5 text-right font-semibold">{r.quantity}</td>
+              <td className="px-4 py-2.5 text-right text-muted">{r.leverage}x</td>
               <td
-                className={`p-3 text-right font-bold ${
-                  r.pnlDec >= 0 ? "text-chart-green" : "text-chart-red"
+                className={`px-4 py-2.5 text-right font-bold ${
+                  r.pnlDec >= 0 ? "text-bull" : "text-bear"
                 }`}
               >
                 {r.pnlDec > 0 ? "+" : ""}{(r.pnlDec).toFixed(r.decimal)}
               </td>
-              <td className="p-3 text-right">
+              <td className="px-4 py-2.5 text-right">
                 <button
                   onClick={() => closeOrder(r.id)}
-                  className="p-1 hover:bg-chart-red hover:text-white text-text-main transition-colors border border-transparent hover:border-chart-red rounded-sm"
+                  className="p-1.5 rounded-lg hover:bg-bear hover:text-white text-muted transition-colors"
                   title="Close Position"
                 >
                   <X className="w-4 h-4" />
@@ -150,16 +148,22 @@ export default function OpenOrders() {
           ))}
           {!isLoading && !isError && rows.length === 0 ? (
             <tr>
-              <td
-                className="p-12 text-center text-xs text-text-main/40 font-bold uppercase"
-                colSpan={8}
-              >
-                // NO_OPEN_POSITIONS
+              <td className="p-10" colSpan={8}>
+                <EmptyState />
               </td>
             </tr>
           ) : null}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="text-center py-6">
+      <p className="text-xs text-muted font-semibold">No open positions</p>
+      <p className="text-[11px] text-muted/60 mt-1">Your live positions will appear here.</p>
     </div>
   );
 }

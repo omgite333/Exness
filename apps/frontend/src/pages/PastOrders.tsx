@@ -1,208 +1,168 @@
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api";
-import { Link } from "react-router-dom";
-import { ArrowLeft, TrendingUp, TrendingDown, Loader2, AlertCircle, InboxIcon } from "lucide-react";
-import { toDecimalNumber } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import api from "@/lib/api";
+import { useAuthCheck } from "@/lib/useAuthCheck";
+import { useSessionStore } from "@/lib/session";
+import { ArrowRight, Mail, CheckCircle, AlertCircle, ArrowLeft } from "lucide-react";
+import Logo from "@/components/Logo";
 
-interface ClosedTrade {
-  id: string;
-  asset: string;
-  type: string;
-  quantity: number;
-  openPrice: number;
-  closePrice: number;
-  pnl: number;
-  decimal: number;
-  liquidated: boolean;
-  createdAt: string;
-}
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [focused, setFocused] = useState(false);
 
-function formatAsset(raw: string) {
-  return raw.replace("_USDC_PERP", "/USDC").replaceAll("_", "");
-}
-
-function formatDate(iso: string) {
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) +
-    " · " + d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
-}
-
-export default function PastOrders() {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["closedOrders"],
-    queryFn: async () => {
-      const res = await api.get("/trade/closed");
-      return res.data.trades as ClosedTrade[];
+  const { mutate, isPending, isSuccess, error } = useMutation({
+    mutationFn: async () => {
+      const cleanEmail = email.trim();
+      await api.post("/auth/signup", { email: cleanEmail });
     },
   });
 
-  const totalPnl = data?.reduce((sum, t) => sum + toDecimalNumber(t.pnl, t.decimal), 0) ?? 0;
-  const wins = data?.filter((t) => t.pnl > 0).length ?? 0;
-  const losses = data?.filter((t) => t.pnl < 0).length ?? 0;
-  const winRate = data?.length ? Math.round((wins / data.length) * 100) : 0;
+  const { isSuccess: isAuthSuccess } = useAuthCheck();
+  const navigate = useNavigate();
+  const isGuest = useSessionStore((s) => s.isGuest);
+
+  useEffect(() => {
+    if (isAuthSuccess && !isGuest) {
+      navigate("/trade", { replace: true });
+    }
+  }, [isAuthSuccess, isGuest, navigate]);
 
   return (
-    <div className="min-h-screen bg-[#080c14] text-white font-sans flex flex-col">
+    <div className="min-h-screen bg-ink text-white flex">
 
-      {/* NAV */}
-      <nav className="h-12 shrink-0 flex items-center justify-between px-6 bg-[#0d1117] border-b border-white/5">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-md bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-[10px] font-bold">EX</div>
-            <span className="font-semibold text-sm tracking-tight">Exness</span>
+      {/* LEFT PANEL — branding */}
+      <div className="hidden lg:flex flex-col justify-between w-[45%] bg-panel border-r border-white/5 p-12">
+        <div>
+          <button onClick={() => navigate("/")} aria-label="Exness home" className="mb-16">
+            <Logo />
+          </button>
+
+          <div className="space-y-10">
+            <div>
+              <h1 className="text-4xl font-extrabold tracking-tight leading-tight mb-3">
+                Trade smarter.<br />
+                <span className="text-brand">Move faster.</span>
+              </h1>
+              <p className="text-muted leading-relaxed text-sm">
+                Professional perpetuals trading with sub-millisecond execution and real-time WebSocket feeds.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                "No KYC — sign in with just your email",
+                "Demo account with $50,000 in virtual funds",
+                "Live BTC, ETH, SOL perpetuals up to 100x",
+              ].map((text, i) => (
+                <div key={i} className="flex items-center gap-3 text-sm text-white/80">
+                  <div className="w-5 h-5 rounded-full bg-brand/15 border border-brand/30 flex items-center justify-center shrink-0">
+                    <div className="w-1.5 h-1.5 rounded-full bg-brand" />
+                  </div>
+                  {text}
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="w-px h-4 bg-white/10" />
-          <Link
-            to="/trade"
-            className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors"
-          >
-            <ArrowLeft size={13} /> Back to Trading
-          </Link>
-        </div>
-        <p className="text-xs text-gray-600">Trade History</p>
-      </nav>
-
-      <main className="flex-1 p-6 lg:p-8 max-w-7xl mx-auto w-full">
-
-        {/* HEADER */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold mb-1">Trade History</h1>
-          <p className="text-gray-500 text-sm">All closed and liquidated positions</p>
         </div>
 
-        {/* SUMMARY CARDS */}
-        {data && data.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-            {[
-              {
-                label: "Total Trades",
-                value: data.length,
-                sub: `${wins}W / ${losses}L`,
-              },
-              {
-                label: "Win Rate",
-                value: `${winRate}%`,
-                sub: "of closed trades",
-                positive: winRate >= 50,
-              },
-              {
-                label: "Total P&L",
-                value: `${totalPnl >= 0 ? "+" : ""}$${totalPnl.toFixed(2)}`,
-                sub: "all positions",
-                colored: true,
-                positive: totalPnl >= 0,
-              },
-              {
-                label: "Liquidated",
-                value: data.filter((t) => t.liquidated).length,
-                sub: "forced closes",
-              },
-            ].map((card, i) => (
-              <div key={i} className="bg-[#0d1117] border border-white/5 rounded-xl p-4">
-                <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-2">{card.label}</p>
-                <p className={`text-xl font-bold font-mono ${card.colored ? (card.positive ? "text-emerald-400" : "text-red-400") : "text-white"}`}>
-                  {card.value}
-                </p>
-                <p className="text-[10px] text-gray-600 mt-1">{card.sub}</p>
+        <p className="text-xs text-muted/70">© {new Date().getFullYear()} Exness. Demo platform only.</p>
+      </div>
+
+      {/* RIGHT PANEL — form */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-16 relative">
+
+        {/* Back button */}
+        <button
+          onClick={() => navigate("/")}
+          className="absolute top-8 left-8 flex items-center gap-2 text-sm text-muted hover:text-white transition-colors"
+        >
+          <ArrowLeft size={14} />
+          Back
+        </button>
+
+        <div className="w-full max-w-sm">
+
+          {/* Mobile logo */}
+          <button onClick={() => navigate("/")} aria-label="Exness home" className="mb-10 lg:hidden">
+            <Logo />
+          </button>
+
+          <h2 className="text-2xl font-extrabold tracking-tight mb-1">Welcome back</h2>
+          <p className="text-muted text-sm mb-8">Enter your email to receive a secure sign-in link.</p>
+
+          {!isSuccess ? (
+            <form
+              onSubmit={(e) => { e.preventDefault(); mutate(); }}
+              className="space-y-4"
+            >
+              {/* Email field */}
+              <div className={`relative rounded-xl border transition-all duration-200 ${focused ? "border-brand/60 bg-brand/5" : "border-white/10 bg-panel-2"}`}>
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted">
+                  <Mail size={15} />
+                </div>
+                <input
+                  type="email"
+                  required
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onFocus={() => setFocused(true)}
+                  onBlur={() => setFocused(false)}
+                  className="w-full bg-transparent pl-10 pr-4 py-3.5 text-sm outline-none text-white placeholder:text-muted/50 rounded-xl"
+                />
               </div>
-            ))}
+
+              {/* Error */}
+              {error && (
+                <div className="flex items-center gap-2.5 p-3.5 rounded-xl bg-bear/10 border border-bear/25 text-bear text-xs font-medium">
+                  <AlertCircle size={14} className="shrink-0" />
+                  {(error as Error).message || "Something went wrong. Please try again."}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isPending}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-full bg-brand text-black font-bold text-sm hover:bg-brand-deep transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isPending ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                    Sending link...
+                  </>
+                ) : (
+                  <>Send magic link <ArrowRight size={15} /></>
+                )}
+              </button>
+            </form>
+          ) : (
+            /* Success state */
+            <div className="text-center py-6">
+              <div className="w-14 h-14 rounded-2xl bg-bull/10 border border-bull/25 flex items-center justify-center mx-auto mb-5">
+                <CheckCircle className="text-bull" size={24} />
+              </div>
+              <h3 className="font-bold text-lg mb-2">Check your inbox</h3>
+              <p className="text-muted text-sm leading-relaxed">
+                We sent a sign-in link to{" "}
+                <span className="text-white font-semibold">{email}</span>.
+                Click it to access your account.
+              </p>
+              <p className="text-muted/70 text-xs mt-4">Didn't get it? Check your spam folder.</p>
+            </div>
+          )}
+
+          <div className="mt-8 pt-6 border-t border-white/5 text-center">
+            <p className="text-xs text-muted mb-3">Just want to explore?</p>
+            <button
+              onClick={() => navigate("/trade")}
+              className="text-sm text-brand hover:text-brand-deep transition-colors font-semibold"
+            >
+              Try the demo — no account needed →
+            </button>
           </div>
-        )}
-
-        {/* TABLE */}
-        <div className="bg-[#0d1117] border border-white/5 rounded-2xl overflow-hidden">
-
-          {/* Loading */}
-          {isLoading && (
-            <div className="flex flex-col items-center justify-center py-20 gap-3">
-              <Loader2 className="text-gray-600 animate-spin" size={20} />
-              <p className="text-sm text-gray-600">Loading trade history...</p>
-            </div>
-          )}
-
-          {/* Error */}
-          {isError && (
-            <div className="flex flex-col items-center justify-center py-20 gap-3">
-              <AlertCircle className="text-red-500/50" size={20} />
-              <p className="text-sm text-gray-500">Failed to load trades</p>
-            </div>
-          )}
-
-          {/* Empty */}
-          {!isLoading && !isError && data?.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20 gap-3">
-              <InboxIcon className="text-gray-700" size={28} />
-              <p className="text-sm text-gray-500">No closed trades yet</p>
-              <Link to="/trade" className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
-                Start trading →
-              </Link>
-            </div>
-          )}
-
-          {/* Table */}
-          {!isLoading && !isError && data && data.length > 0 && (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-white/5">
-                    {["Date", "Asset", "Side", "Size", "Entry", "Exit", "P&L", "Status"].map((h, i) => (
-                      <th
-                        key={h}
-                        className={`px-5 py-3 text-[10px] font-medium text-gray-500 uppercase tracking-widest ${i >= 3 ? "text-right" : "text-left"} ${i === 7 ? "text-center" : ""}`}
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.map((trade, idx) => {
-                    const pnlReal = toDecimalNumber(trade.pnl, trade.decimal);
-                    const isProfit = pnlReal > 0;
-                    const isLong = trade.type === "long";
-                    return (
-                      <tr
-                        key={trade.id}
-                        className={`border-b border-white/3 hover:bg-white/2 transition-colors ${idx === data.length - 1 ? "border-b-0" : ""}`}
-                      >
-                        <td className="px-5 py-3.5 text-xs text-gray-500 whitespace-nowrap">
-                          {formatDate(trade.createdAt)}
-                        </td>
-                        <td className="px-5 py-3.5">
-                          <span className="text-sm font-medium text-white">{formatAsset(trade.asset)}</span>
-                        </td>
-                        <td className="px-5 py-3.5">
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium ${isLong ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"}`}>
-                            {isLong ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
-                            {trade.type.toUpperCase()}
-                          </span>
-                        </td>
-                        <td className="px-5 py-3.5 text-right text-sm font-mono text-gray-300">
-                          {trade.quantity}
-                        </td>
-                        <td className="px-5 py-3.5 text-right text-sm font-mono text-gray-400">
-                          ${toDecimalNumber(trade.openPrice, trade.decimal).toLocaleString()}
-                        </td>
-                        <td className="px-5 py-3.5 text-right text-sm font-mono text-gray-400">
-                          ${toDecimalNumber(trade.closePrice, trade.decimal).toLocaleString()}
-                        </td>
-                        <td className={`px-5 py-3.5 text-right text-sm font-bold font-mono ${isProfit ? "text-emerald-400" : pnlReal < 0 ? "text-red-400" : "text-gray-400"}`}>
-                          {pnlReal > 0 ? "+" : ""}${Math.abs(pnlReal).toFixed(2)}
-                        </td>
-                        <td className="px-5 py-3.5 text-center">
-                          <span className={`px-2.5 py-1 rounded-lg text-[10px] font-medium ${trade.liquidated ? "bg-red-500/10 text-red-400 border border-red-500/15" : "bg-white/5 text-gray-400"}`}>
-                            {trade.liquidated ? "Liquidated" : "Closed"}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

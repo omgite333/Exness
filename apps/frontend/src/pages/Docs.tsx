@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Zap, Database, Radio, Globe, Cpu, Server, ArrowRight } from "lucide-react";
+import Logo from "@/components/Logo";
 
 const COMPONENTS = [
   {
@@ -77,28 +78,27 @@ export default function Docs() {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-[#080c14] text-white font-sans min-h-screen">
+    <div className="bg-ink text-white font-sans min-h-screen">
 
       {/* Subtle grid */}
       <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none" />
 
       {/* NAV */}
-      <nav className="sticky top-0 z-50 bg-[#080c14]/90 backdrop-blur-xl border-b border-white/5 h-12 flex items-center">
+      <nav className="sticky top-0 z-50 bg-ink/90 backdrop-blur-xl border-b border-white/10 h-14 flex items-center">
         <div className="max-w-5xl mx-auto px-6 w-full flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate("/")}
               className="flex items-center gap-2.5"
             >
-              <div className="w-6 h-6 rounded-md bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-[10px] font-bold">EX</div>
-              <span className="font-semibold text-sm tracking-tight">Exness</span>
+              <Logo iconClassName="w-6 h-6" textClassName="text-sm" />
             </button>
             <div className="w-px h-4 bg-white/10" />
-            <span className="text-xs text-gray-500">Architecture Docs</span>
+            <span className="text-xs text-muted">Architecture Docs</span>
           </div>
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white transition-colors"
+            className="flex items-center gap-1.5 text-xs text-muted hover:text-white transition-colors"
           >
             <ArrowLeft size={13} /> Back
           </button>
@@ -109,29 +109,29 @@ export default function Docs() {
 
         {/* HERO */}
         <section className="mb-20">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/15 text-blue-400 text-xs font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand/10 border border-brand/25 text-brand text-xs font-semibold mb-6">
             System Documentation
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-5">
+          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight leading-tight mb-5">
             How it{" "}
-            <span className="bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">works</span>
+            <span className="text-brand">works</span>
           </h1>
-          <p className="text-gray-400 text-base leading-relaxed max-w-2xl">
+          <p className="text-muted text-base leading-relaxed max-w-2xl">
             A fully distributed trading system built for low-latency execution. Orders are processed in-memory with Redis as the messaging backbone between six independent services.
           </p>
         </section>
 
         {/* FLOW DIAGRAM */}
         <section className="mb-20">
-          <h2 className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-6">Execution Flow</h2>
-          <div className="bg-[#0d1117] border border-white/5 rounded-2xl p-8 overflow-x-auto">
+          <h2 className="text-xs font-bold text-muted uppercase tracking-widest mb-6">Execution Flow</h2>
+          <div className="bg-panel border border-white/5 rounded-2xl p-8 overflow-x-auto">
             <div className="flex items-center gap-0 min-w-max mx-auto">
               {FLOW.map((step, i) => (
                 <div key={i} className="flex items-center">
                   <div className="flex flex-col items-center gap-2">
-                    <div className="px-4 py-2.5 rounded-xl bg-[#080c14] border border-white/8 text-center min-w-[90px]">
+                    <div className="px-4 py-2.5 rounded-xl bg-ink border border-white/10 text-center min-w-[90px]">
                       <p className="text-xs font-semibold text-white whitespace-nowrap">{step.label}</p>
-                      <p className="text-[10px] text-gray-600 mt-0.5">{step.sub}</p>
+                      <p className="text-[10px] text-muted/70 mt-0.5">{step.sub}</p>
                     </div>
                   </div>
                   {i < FLOW.length - 1 && (
@@ -148,7 +148,7 @@ export default function Docs() {
 
         {/* COMPONENTS */}
         <section className="mb-20">
-          <h2 className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-6">System Components</h2>
+          <h2 className="text-xs font-bold text-muted uppercase tracking-widest mb-6">System Components</h2>
           <div className="grid md:grid-cols-2 gap-4">
             {COMPONENTS.map((c, i) => (
               <div
@@ -166,10 +166,10 @@ export default function Docs() {
                     </div>
                   </div>
                 </div>
-                <p className="text-gray-400 text-xs leading-relaxed mb-4">{c.desc}</p>
+                <p className="text-muted text-xs leading-relaxed mb-4">{c.desc}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {c.tech.map((t) => (
-                    <span key={t} className="text-[10px] px-2 py-0.5 rounded-md bg-white/4 border border-white/5 text-gray-500">
+                    <span key={t} className="text-[10px] px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/5 text-muted">
                       {t}
                     </span>
                   ))}
@@ -181,7 +181,7 @@ export default function Docs() {
 
         {/* KEY FACTS */}
         <section>
-          <h2 className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-6">Key Design Decisions</h2>
+          <h2 className="text-xs font-bold text-muted uppercase tracking-widest mb-6">Key Design Decisions</h2>
           <div className="space-y-px rounded-2xl overflow-hidden border border-white/5">
             {[
               ["Integer prices", "All prices stored as integers with a decimal field (e.g. 870000 = 87.0000) to avoid floating point drift across the Redis boundary."],
@@ -190,11 +190,11 @@ export default function Docs() {
               ["Guest sessions", "Unauthenticated users get a JWT-signed guest ID cookie and $50,000 virtual balance so they can trade immediately."],
               ["Crash recovery", "Engine snapshots full state to MongoDB every 5s. On restart it replays any Redis stream messages it missed while offline."],
             ].map(([title, desc], i) => (
-              <div key={i} className="flex gap-4 bg-[#0d1117] px-5 py-4">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-500/50 mt-1.5 shrink-0" />
+              <div key={i} className="flex gap-4 bg-panel px-5 py-4">
+                <div className="w-1.5 h-1.5 rounded-full bg-brand/70 mt-1.5 shrink-0" />
                 <div>
                   <p className="text-sm font-medium text-white mb-0.5">{title}</p>
-                  <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
+                  <p className="text-xs text-muted leading-relaxed">{desc}</p>
                 </div>
               </div>
             ))}
@@ -205,7 +205,7 @@ export default function Docs() {
         <div className="mt-16 flex flex-col sm:flex-row gap-3 items-start">
           <button
             onClick={() => navigate("/trade")}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-[#080c14] font-semibold text-sm hover:bg-gray-100 transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-brand text-black font-bold text-sm hover:bg-brand-deep transition-all"
           >
             Try the Platform <ArrowRight size={14} />
           </button>

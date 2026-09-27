@@ -1,130 +1,107 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 
-/* ---------------- ROOT ---------------- */
+/* ---------- Exness design tokens ----------
+   Colors resolve through CSS vars so the .light class on <html>
+   flips the whole UI between dark and light without touching markup. */
 :root {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --ex-ink: #0a0b0d;
+  --ex-panel: #121417;
+  --ex-panel-2: #1a1d21;
+  --ex-fg: #ffffff;
+  --ex-muted: #9aa0a6;
+  --ex-wash: rgba(255, 255, 255, 0.045);
+  --ex-line: rgba(255, 255, 255, 0.10);
+  --ex-gold: #ffde02;
 
-  color: #ffffff;
-  background-color: #020617;
+  --ex-brand: #ffde02;
+  --ex-brand-deep: #d9bc00;
+  --ex-bull: #26a69a;
+  --ex-bear: #ef5350;
 
+  color-scheme: dark;
+}
+
+.light {
+  --ex-ink: #f3f4f6;
+  --ex-panel: #ffffff;
+  --ex-panel-2: #eceef1;
+  --ex-fg: #101214;
+  --ex-muted: #5f6368;
+  --ex-wash: rgba(16, 18, 20, 0.05);
+  --ex-line: rgba(16, 18, 20, 0.12);
+  --ex-gold: #8f7400;
+
+  color-scheme: light;
+}
+
+@theme inline {
+  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-ink: var(--ex-ink);
+  --color-panel: var(--ex-panel);
+  --color-panel-2: var(--ex-panel-2);
+  --color-fg: var(--ex-fg);
+  --color-muted: var(--ex-muted);
+  --color-wash: var(--ex-wash);
+  --color-line: var(--ex-line);
+  --color-gold: var(--ex-gold);
+
+  --color-brand: var(--ex-brand);
+  --color-brand-deep: var(--ex-brand-deep);
+  --color-bull: var(--ex-bull);
+  --color-bear: var(--ex-bear);
+}
+
+html,
+body {
+  background: var(--ex-ink);
+  color: var(--ex-fg);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ---------------- THEME TOKENS ---------------- */
-@theme inline {
-  --color-primary: #3b82f6; /* blue */
-  --color-accent: #06b6d4; /* cyan */
-
-  --color-bg-main: #020617;
-  --color-bg-card: #0f172a;
-
-  --color-text-main: #ffffff;
-  --color-text-muted: #94a3b8;
-
-  --color-green: #22c55e;
-  --color-red: #ef4444;
-
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-}
-
-/* ---------------- BASE ---------------- */
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: #020617;
-}
-
-/* ---------------- TYPOGRAPHY ---------------- */
-.font-display {
-  font-family: 'Inter', sans-serif;
-}
-
-.font-heading {
-  font-family: 'Inter', sans-serif;
-  font-weight: 600;
-}
-
-/* ---------------- GLASS UTILS ---------------- */
-.glass {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.1);
-}
-
-.glass-strong {
-  background: rgba(15, 23, 42, 0.8);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.15);
-}
-
-/* ---------------- GLOW EFFECTS ---------------- */
-.glow-blue {
-  box-shadow: 0 0 40px rgba(59,130,246,0.25);
-}
-
-.glow-cyan {
-  box-shadow: 0 0 40px rgba(6,182,212,0.25);
-}
-
-/* ---------------- BUTTON ---------------- */
+input,
+select,
 button {
-  border-radius: 10px;
-  border: none;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  font-family: inherit;
 }
 
-button:hover {
-  transform: scale(1.03);
-}
-
-/* ---------------- INPUT ---------------- */
-input {
-  border-radius: 10px;
-  outline: none;
-}
-
-/* ---------------- SCROLLBAR (MODERN) ---------------- */
+/* ---------------- SCROLLBAR ---------------- */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+  height: 8px;
 }
-
+::-webkit-scrollbar-track {
+  background: transparent;
+}
 ::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.1);
-  border-radius: 10px;
+  background: var(--ex-line);
+  border-radius: 8px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.2);
+  background: var(--ex-muted);
 }
 
-/* ---------------- GRID BACKGROUND ---------------- */
-.bg-grid {
-  background-image:
-    linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
-  background-size: 40px 40px;
+/* ---------------- TICKER MARQUEE ---------------- */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 28s linear infinite;
 }
 
-/* ---------------- ANIMATIONS ---------------- */
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
-  100% { transform: translateY(0px); }
+/* ---------------- SOFT ENTRANCE ---------------- */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-
-.animate-float {
-  animation: float 4s ease-in-out infinite;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.animate-fade {
-  animation: fadeIn 0.5s ease-in-out;
+.animate-rise {
+  animation: rise 0.6s cubic-bezier(0.22, 0.68, 0.36, 1) both;
 }

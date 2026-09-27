@@ -8,9 +8,9 @@ export default function ProtectedRoute() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background-light font-mono-retro flex items-center justify-center">
-        <div className="text-text-main font-bold uppercase animate-pulse">
-          Verifying Identity...
+      <div className="min-h-screen bg-ink flex items-center justify-center">
+        <div className="text-muted text-sm animate-pulse">
+          Verifying identity...
         </div>
       </div>
     );

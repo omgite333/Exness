@@ -60,6 +60,7 @@ export const emailGenController = async (req: Request, res: Response) => {
 
     const { data, error } = await sendEmail(user!.email, jwtToken);
     if (error) {
+      console.error("sendEmail failed:", error);  
       res.status(400).json({ message: "Could not send email" });
       return;
     }
@@ -68,6 +69,7 @@ export const emailGenController = async (req: Request, res: Response) => {
       message: "Email sent. Check your inbox and follow the link to log in.",
     });
   } catch (err) {
+    console.error("emailGenController failed:", err); 
     res.status(400).json({ message: "Could not sign up, request timed out" });
     return;
   }
