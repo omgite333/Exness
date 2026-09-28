@@ -6,7 +6,7 @@ export const sendEmail = async (email: string, jwtToken: string) => {
   const signInUrl = `${process.env.API_BASE_URL}/auth/signin/post?token=${jwtToken}`;
 
   return await resend.emails.send({
-    from: "Exness <onboarding@resend.dev>",
+    from: "Exness <noreply@omgite.me>",
     to: [`${email}`],
     subject: "Your sign-in link for Exness",
     html: `
